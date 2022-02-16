@@ -1,0 +1,25 @@
+{
+  "name": "conbini_engine",
+  "version": "1.0.0",
+  "description": "good engine, much wow",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack serve --open"
+  },
+  "author": "Ethan Spurlock",
+  "license": "MIT",
+  "devDependencies": {
+    "ts-loader": "^9.2.6",
+    "typescript": "^4.5.5",
+    "webpack": "^5.69.0",
+    "webpack-cli": "^4.9.2",
+    "webpack-dev-server": "^4.7.4"
+  },
+  "dependencies": {
+    "@dimforge/rapier3d": "^0.8.0-alpha.1",
+    "@types/lodash": "^4.14.178",
+    "@types/three": "^0.137.0",
+    "lodash": "^4.17.21",
+    "three": "^0.137.5"
+  }
+}
