@@ -15,7 +15,7 @@ module.exports = {
     devtool: 'inline-source-map',
     devServer: {
         static: './dist',
-        host: '0.0.0.0',
+        host: 'localhost',
         port: 8080,
     },
     experiments: {
