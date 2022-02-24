@@ -2,12 +2,22 @@ import { ColliderDesc, RigidBodyDesc } from '@dimforge/rapier3d';
 import * as THREE from 'three';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton';
 
+
+
 //import { FirstPersonControls } from './FirstPersonControls.js';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 
 import RapierPhysics from './physics';
 import { EditorControls } from './EditorControls';
-import { Color } from 'three';
+import { Color, Vector3 } from 'three';
+import { h } from './JSX';
+
+
+const scene_xml = (
+  <root enable_xr={true}>
+    <entity model="airplane.gltf" position={new Vector3(1, 0, 1)} mass="0.5" />
+  </root>
+);
 
 const renderer = new THREE.WebGLRenderer( { antialias: true } );
 const scene = new THREE.Scene();
@@ -19,6 +29,8 @@ document.body.appendChild( VRButton.createButton( renderer ) );
 renderer.xr.enabled = true;
 
 const clock = new THREE.Clock();
+
+
 
 init();
 
@@ -38,8 +50,8 @@ async function init() {
   scene.background = new THREE.Color( 0xbfd1e5 );
 
 
-  const physics = await RapierPhysics.autoImport();
-  physics.buildDefaultWorld();
+  const physics = await RapierPhysics.fromWASM();
+  //physics.buildDefaultWorld();
 
   // Create a dynamic rigid-body.
   let rigidBodyDesc = RigidBodyDesc.newDynamic().setTranslation(0.0, 1.0, 0.0);

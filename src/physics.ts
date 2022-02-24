@@ -15,15 +15,13 @@ export default class RapierPhysics
         this.world = new World(this.gravity);
     }
 
-    static async autoImport(){
+    static async fromWASM(){
         const RAPIER = await import('@dimforge/rapier3d');
         return new RapierPhysics(RAPIER);
     }
 
-    buildDefaultWorld(){
-            // Create the ground
-        let groundColliderDesc = ColliderDesc.cuboid(10.0, 0.1, 10.0);
-        this.world.createCollider(groundColliderDesc);
+    update(deltaTime: number){
+        this.world.step();
     }
 
 }
