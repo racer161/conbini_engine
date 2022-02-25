@@ -7,7 +7,7 @@ import { VRButton } from 'three/examples/jsm/webxr/VRButton';
 //import { FirstPersonControls } from './FirstPersonControls.js';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
 
-import RapierPhysics from './physics';
+import RapierPhysics from './core/system/rapier';
 import { EditorControls } from './EditorControls';
 import { Color, Vector3 } from 'three';
 import { h } from './JSX';
