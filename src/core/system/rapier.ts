@@ -15,7 +15,8 @@ export default class RapierPhysics
         this.world = new World(this.gravity);
     }
 
-    static async fromWASM(){
+    static async fromWASM() : Promise<RapierPhysics>
+    {
         const RAPIER = await import('@dimforge/rapier3d');
         return new RapierPhysics(RAPIER);
     }
