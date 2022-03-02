@@ -1,3 +1,6 @@
+import { Entity } from "../core/Entity";
+import { float3 } from "../primitives";
+
 declare global {
     namespace JSX{
         export interface IntrinsicElements{
@@ -14,6 +17,16 @@ declare global {
     }
 }
 
-export function h(tag: any, props: any, ...children: any[]){
-	console.log(tag, props, children);
+
+//A function that traverses the JSX tree and creates the corresponding entities
+export function h(tag: any, props: any, ...children: any[]) : Entity
+{
+    
+    return {
+        name: tag,
+        ...props,
+        children: children
+        
+    };
 }
+

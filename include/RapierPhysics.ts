@@ -1,11 +1,10 @@
-import { World, Vector, ColliderDesc } from '@dimforge/rapier3d';
+import { World, Vector, ColliderDesc, RigidBody } from '@dimforge/rapier3d';
 
 export default class RapierPhysics
 {
     //wasm object holder
     private RAPIER: object;
 
-    
     gravity: Vector;
     world: World;
 

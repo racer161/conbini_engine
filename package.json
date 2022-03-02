@@ -21,6 +21,7 @@
     "@types/three": "^0.137.0",
     "lodash": "^4.17.21",
     "sharedmap": "^1.2.0",
-    "three": "^0.137.5"
+    "three": "^0.137.5",
+    "ts-transformer-keys": "^0.4.3"
   }
 }
