@@ -1,3 +1,4 @@
+import { uniqueId } from "lodash";
 import { Entity } from "../core/Entity";
 import { float3 } from "../primitives";
 
@@ -19,14 +20,18 @@ declare global {
 
 
 //A function that traverses the JSX tree and creates the corresponding entities
-export function h(tag: any, props: any, ...children: any[]) : Entity
+export function h(tag: Entity | String, props: any, ...children: any[]) : Entity
 {
-    
-    return {
-        name: tag,
+
+    if (tagIsEntity(tag)) return tag;
+    else return {
         ...props,
-        children: children
-        
-    };
+        id : uniqueId(),
+        children : children,
+    }
 }
 
+function tagIsEntity(tag: Entity | String) : tag is Entity
+{
+    return typeof tag === "object";
+}

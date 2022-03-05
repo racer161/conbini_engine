@@ -20,14 +20,13 @@ export interface MaterialComponent{
     material: Material
 }
 
-interface RenderEntity extends Entity, PositionComponent, GeometryComponent, MaterialComponent{}
+export interface RenderEntity extends PositionComponent, GeometryComponent, MaterialComponent{}
 
 
-export class RenderSystem<T extends RenderEntity> extends System<T> 
+export class Render<T extends RenderEntity> extends System<T> 
 {
-    beforeUpdate(): Promise<void> {
-        throw new Error("Method not implemented.");
-    }
+    name: string = "Render";
+
     renderer: THREE.WebGLRenderer;
     three_scene: THREE.Scene;
     camera: THREE.PerspectiveCamera;
@@ -42,7 +41,10 @@ export class RenderSystem<T extends RenderEntity> extends System<T>
         this.three_scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.0001, 100000 );
 
-        window.addEventListener( 'resize', this.onWindowResize, false );
+        var self = this;
+        window.addEventListener( 'resize', () =>{
+            self.onWindowResize();
+        }, false );
         document.body.appendChild( VRButton.createButton( this.renderer ) );
 
         this.renderer.xr.enabled = true;
@@ -91,12 +93,15 @@ export class RenderSystem<T extends RenderEntity> extends System<T>
         this.three_scene.add( plane );
     }
 
-    async update(e: T extends Entity & PositionComponent ? any : any): Promise<void> {
-       
+    async beforeUpdate(): Promise<void> {
         //eventually move this to its own system
         this.controls.update( this.clock.getDelta() );
 
         this.renderer.render( this.three_scene, this.camera );
+    }
+
+    async update(e: T extends Entity & PositionComponent ? any : any): Promise<void> {
+        
     }
 
 }

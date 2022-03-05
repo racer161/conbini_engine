@@ -2,14 +2,16 @@ import { float3 } from "../primitives";
 import { ColliderDesc, RigidBody } from '@dimforge/rapier3d';
 import { values } from "lodash";
 import { Entity } from "./Entity";
-import { Scene } from "../engine/Scene";
+import { Sandbox } from "../engine/Sandbox";
 
 
-export abstract class System<T extends Entity> 
+export abstract class System<T> 
 {
-    scene: Scene;
+    scene: Sandbox;
 
-    abstract archetype: string[];
+    archetype: string[];
+
+    abstract name: string;
 
     abstract init(): Promise<void>;
 
@@ -17,7 +19,7 @@ export abstract class System<T extends Entity>
 
     abstract update(e: T) : Promise<void>;
 
-    constructor(scene: Scene){
+    constructor(scene: Sandbox){
         this.scene = scene;
     }
 }

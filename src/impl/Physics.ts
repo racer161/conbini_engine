@@ -9,10 +9,12 @@ interface RigidBodyComponent{
     rigidBody : RigidBody;
 }
 
-interface PhysicsEntity extends Entity, PositionComponent, RigidBodyComponent{}
+interface PhysicsEntity extends PositionComponent, RigidBodyComponent{}
 
 
-export class PhysicsSystem<T extends PhysicsEntity> extends System<T>{
+export class Physics<T extends Entity & PhysicsEntity> extends System<T>{
+
+    name: string = "Physics";
 
     archetype: string[] = keys<PhysicsEntity>();
 

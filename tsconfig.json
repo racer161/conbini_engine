@@ -2,6 +2,7 @@
   "compilerOptions": {
     "jsx": "react",
     "jsxFactory": "h",
+    "jsxFragmentFactory": "Fragment",
     "outDir": "./dist/",
     "noImplicitAny": true,
     "module": "esnext",

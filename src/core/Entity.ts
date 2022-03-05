@@ -1,4 +1,4 @@
-export interface Entity extends Object{
+export interface Entity{
     children?: Entity[];
     id: string;
 }
