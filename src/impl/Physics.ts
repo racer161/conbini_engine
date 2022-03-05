@@ -1,6 +1,6 @@
 import { System } from "../core/System";
 import RapierPhysics from '../../include/RapierPhysics';
-import { RigidBody } from "@dimforge/rapier3d";
+import { ColliderDesc, RigidBody, RigidBodyDesc } from "@dimforge/rapier3d";
 import { PositionComponent } from "./Transform";
 import { Entity } from "../core/Entity";
 import { keys } from "ts-transformer-keys";
@@ -9,7 +9,11 @@ interface RigidBodyComponent{
     rigidBody : RigidBody;
 }
 
-interface PhysicsEntity extends PositionComponent, RigidBodyComponent{}
+interface ColliderComponent{
+    collider : ColliderDesc;
+}
+
+interface PhysicsEntity extends PositionComponent, RigidBodyComponent, ColliderComponent{}
 
 
 export class Physics<T extends Entity & PhysicsEntity> extends System<T>{
@@ -23,6 +27,19 @@ export class Physics<T extends Entity & PhysicsEntity> extends System<T>{
     async init(): Promise<void>
     {
         this.physics = await RapierPhysics.fromWASM();
+
+        //init entities into the threejs scene
+        this.scene.getEntitiesFromArchetype<PhysicsEntity & Entity>(this.archetype).forEach(e => {
+            // Create a dynamic rigid-body.
+
+            
+            let rigidBodyDesc = e.static ? RigidBodyDesc.newStatic() : RigidBodyDesc.newDynamic();
+            rigidBodyDesc.setTranslation(e.position[0], e.position[1], e.position[2]);
+            e.rigidBody = this.physics.world.createRigidBody(rigidBodyDesc);
+
+            // Create a cuboid collider attached to the dynamic rigidBody. 
+            let collider = this.physics.world.createCollider(e.collider, e.rigidBody.handle);
+        })
     }
 
 
@@ -39,17 +56,3 @@ export class Physics<T extends Entity & PhysicsEntity> extends System<T>{
     
 
 }
-
-/*
-        const physics = await RapierPhysics.fromWASM();
-        //physics.buildDefaultWorld();
-
-        // Create a dynamic rigid-body.
-        let rigidBodyDesc = RigidBodyDesc.newDynamic().setTranslation(0.0, 1.0, 0.0);
-        let rigidBody = physics.world.createRigidBody(rigidBodyDesc);
-
-        // Create a cuboid collider attached to the dynamic rigidBody.
-        let colliderDesc = ColliderDesc.cuboid(0.5, 0.5, 0.5);
-        let collider = physics.world.createCollider(colliderDesc, rigidBody.handle);
-
-*/

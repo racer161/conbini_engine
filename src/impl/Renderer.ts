@@ -57,14 +57,12 @@ export class Render<T extends RenderEntity> extends System<T>
         this.controls.lookSpeed = 0.125;
         this.controls.lookVertical = true;
 
-        this.createFloor();
-
         const light = new THREE.AmbientLight( 0x404040 ); // soft white light
         this.three_scene.add( light );
 
         this.three_scene.background = new THREE.Color( 0xbfd1e5 );
 
-        this.camera.position.z = 1;
+        this.camera.position.set(0, 2, 5);
 
 
         //init entities into the threejs scene
@@ -84,15 +82,6 @@ export class Render<T extends RenderEntity> extends System<T>
         this.renderer.setSize( window.innerWidth, window.innerHeight );
     }
 
-    createFloor(){
-        // floor
-        const geometry = new THREE.PlaneGeometry( 10, 10 );
-        geometry.rotateX( - Math.PI / 2 );
-        const material = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
-        const plane = new THREE.Mesh( geometry, material );
-        this.three_scene.add( plane );
-    }
-
     async beforeUpdate(): Promise<void> {
         //eventually move this to its own system
         this.controls.update( this.clock.getDelta() );
@@ -101,7 +90,7 @@ export class Render<T extends RenderEntity> extends System<T>
     }
 
     async update(e: T extends Entity & PositionComponent ? any : any): Promise<void> {
-        
+        e.mesh.position.set(e.position[0], e.position[1], e.position[2]);
     }
 
 }
