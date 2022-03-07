@@ -6,7 +6,7 @@ import { Entity } from "../core/Entity";
 import { keys } from "ts-transformer-keys";
 
 interface RigidBodyComponent{
-    rigidBody : RigidBody;
+    rigidbody : RigidBody;
 }
 
 interface ColliderComponent{
@@ -29,16 +29,14 @@ export class Physics<T extends Entity & PhysicsEntity> extends System<T>{
         this.physics = await RapierPhysics.fromWASM();
 
         //init entities into the threejs scene
-        this.scene.getEntitiesFromArchetype<PhysicsEntity & Entity>(this.archetype).forEach(e => {
+        this.scene.entities_x_system.get(this.name).forEach((e : PhysicsEntity & Entity) => {
             // Create a dynamic rigid-body.
-
-            
             let rigidBodyDesc = e.static ? RigidBodyDesc.newStatic() : RigidBodyDesc.newDynamic();
             rigidBodyDesc.setTranslation(e.position[0], e.position[1], e.position[2]);
-            e.rigidBody = this.physics.world.createRigidBody(rigidBodyDesc);
+            e.rigidbody = this.physics.world.createRigidBody(rigidBodyDesc);
 
             // Create a cuboid collider attached to the dynamic rigidBody. 
-            let collider = this.physics.world.createCollider(e.collider, e.rigidBody.handle);
+            let collider = this.physics.world.createCollider(e.collider, e.rigidbody.handle);
         })
     }
 
@@ -49,7 +47,7 @@ export class Physics<T extends Entity & PhysicsEntity> extends System<T>{
     }
 
     async update(e: T): Promise<void> {
-        const translation = e.rigidBody.translation();
+        const translation = e.rigidbody.translation();
         //Update the position component
         e.position.set([translation.x, translation.y, translation.z]);
     }

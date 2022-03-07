@@ -13,7 +13,7 @@ export class Sandbox{
     system_array : System<any>[] = [];
     physics_system: any;
 
-    entities_x_system: Map<string, Entity[]> = new Map();
+    entities_x_system: Map<string, any[]> = new Map();
 
     render_system: Render<RenderEntity>;
 
@@ -26,15 +26,16 @@ export class Sandbox{
         this.render_system = render_system;
         this.system_array.push(render_system);
         this.system_array.push(new Physics(this));
-        this.system_array.push(new HandInput(this));
+        //this.system_array.push(new HandInput(this));
         this.init();
     }
 
     async init(){
         //call init on all systems
         for(let system of this.system_array){
-            await system.init();
+            console.log(`Initializing ${system.name}`);
             this.entities_x_system.set(system.name, this.getEntitiesFromArchetype(system.archetype));
+            await system.init();
         }
 
         var self = this;
@@ -60,9 +61,14 @@ export class Sandbox{
     //TODO: make this not a shitty double nested foreach loop
     getEntitiesFromArchetype<T>(archetype : string[]) : T[]{
         //for each entity in the array
-        return this.entity_array.filter(e => {
+        //console.log(`archetype :  ${archetype}`);
+        return this.entity_array.filter(e =>{
+            const keys = Object.keys(e);
+            console.log(`keys : ${keys} archetype : ${archetype}`);
             //check that the archetype is a subset of the entity's archetype
-            Object.keys(e).every(val => archetype.includes(val));
+            const value = archetype.every(val => keys.includes(val));
+            console.log(`value : ${value}`);
+            return value;
         }).map(e => e as unknown as T);
     }
 
