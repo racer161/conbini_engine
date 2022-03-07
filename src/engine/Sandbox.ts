@@ -2,6 +2,7 @@ import { uniqueId } from "lodash";
 import { WebGLBufferRenderer } from "three";
 import { Entity } from "../core/Entity";
 import { System } from "../core/System";
+import { HandInput } from "../impl/HandInput";
 import { Physics } from "../impl/Physics";
 import { RenderEntity, Render } from "../impl/Renderer";
 
@@ -18,8 +19,6 @@ export class Sandbox{
 
     constructor(root : Entity){
         this.entity_array = root_to_entity_array(root);
-
-        console.log(this.entity_array);
         
         this.system_array = new Array<System<any>>();
 
@@ -27,6 +26,7 @@ export class Sandbox{
         this.render_system = render_system;
         this.system_array.push(render_system);
         this.system_array.push(new Physics(this));
+        this.system_array.push(new HandInput(this));
         this.init();
     }
 
@@ -36,8 +36,6 @@ export class Sandbox{
             await system.init();
             this.entities_x_system.set(system.name, this.getEntitiesFromArchetype(system.archetype));
         }
-
-        console.log(this.entities_x_system.get("Render"));
 
         var self = this;
         //create the update loop
@@ -63,15 +61,8 @@ export class Sandbox{
     getEntitiesFromArchetype<T>(archetype : string[]) : T[]{
         //for each entity in the array
         return this.entity_array.filter(e => {
-            archetype.forEach(component => {
-                console.log(component);
-                if(!e.hasOwnProperty(component)){
-                    console.log("false");
-                    return false;
-                    
-                }
-            });
-            return true;
+            //check that the archetype is a subset of the entity's archetype
+            Object.keys(e).every(val => archetype.includes(val));
         }).map(e => e as unknown as T);
     }
 

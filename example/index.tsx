@@ -15,6 +15,4 @@ const scene_xml = (
     </root>
 );
 
-console.log(scene_xml);
-
 const scene = new Sandbox(scene_xml);
