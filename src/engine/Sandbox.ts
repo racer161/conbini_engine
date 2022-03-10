@@ -1,5 +1,5 @@
 import { uniqueId } from "lodash";
-import { WebGLBufferRenderer } from "three";
+import { WebGLBufferRenderer, XRFrame } from "three";
 import { Entity } from "../core/Entity";
 import { System } from "../core/System";
 import { HandInput } from "../impl/HandInput";
@@ -26,6 +26,8 @@ export class Sandbox{
         this.render_system = render_system;
         this.system_array.push(render_system);
         this.system_array.push(new Physics(this));
+
+
         //this.system_array.push(new HandInput(this));
         this.init();
     }
@@ -40,36 +42,30 @@ export class Sandbox{
 
         var self = this;
         //create the update loop
-        this.render_system.renderer.setAnimationLoop(async () => await self.update());
+        this.render_system.renderer.setAnimationLoop(async (time: number, frame?: XRFrame) => await self.update(time, frame));
 
     }
 
-    async update(){
+    async update(time: number, frame?: XRFrame){
         for(let system of this.system_array){
             //allow the system to do preprocessing
-            await system.beforeUpdate();
+            await system.beforeUpdate(time, frame);
 
             //for each entity process the update 
             await Promise.all(
                 this.entities_x_system.get(system.name).map(async e => {
-                    return system.update(e);
+                    return system.update(e, time, frame);
                 }
             ));
         }
     }
 
-    //TODO: make this not a shitty double nested foreach loop
     getEntitiesFromArchetype<T>(archetype : string[]) : T[]{
         //for each entity in the array
         //console.log(`archetype :  ${archetype}`);
-        return this.entity_array.filter(e =>{
-            const keys = Object.keys(e);
-            console.log(`keys : ${keys} archetype : ${archetype}`);
-            //check that the archetype is a subset of the entity's archetype
-            const value = archetype.every(val => keys.includes(val));
-            console.log(`value : ${value}`);
-            return value;
-        }).map(e => e as unknown as T);
+        return this.entity_array
+        .filter((e : Entity) => archetype.every(val => e.hasOwnProperty(val)))
+        .map(e => e as unknown as T);
     }
 
 
@@ -83,7 +79,7 @@ function root_to_entity_array(root : Entity) : Entity[]
     function iterate_object(obj : Entity){
 
         //delete entity.children;
-        obj.children.forEach(child => iterate_object(child));
+        if(obj.children) obj.children.forEach(child => iterate_object(child));
 
         delete obj.children;
 

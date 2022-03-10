@@ -3,6 +3,7 @@ import { ColliderDesc, RigidBody } from '@dimforge/rapier3d';
 import { values } from "lodash";
 import { Entity } from "./Entity";
 import { Sandbox } from "../engine/Sandbox";
+import { XRFrame } from "three";
 
 
 export abstract class System<T> 
@@ -15,9 +16,9 @@ export abstract class System<T>
 
     abstract init(): Promise<void>;
 
-    abstract beforeUpdate(): Promise<void>;
+    abstract beforeUpdate(time: number, frame?: XRFrame): Promise<void>;
 
-    abstract update(e: T) : Promise<void>;
+    abstract update(e: T, time: number, frame?: XRFrame) : Promise<void>;
 
     constructor(scene: Sandbox){
         this.scene = scene;
