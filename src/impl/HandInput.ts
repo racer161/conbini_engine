@@ -1,7 +1,7 @@
 import { System } from "../core/System";
 import RapierPhysics from '../../include/RapierPhysics';
 import { ColliderDesc, RigidBody, RigidBodyDesc } from "@dimforge/rapier3d";
-import { PositionComponent } from "./Transform";
+import { TransformComponent } from "../primitives/Transform";
 import { Entity } from "../core/Entity";
 import { keys } from "ts-transformer-keys";
 
@@ -10,7 +10,7 @@ import { XRInputSource, XRSession, WebXRManager, XRFrame, XRHandJoint, XRJointPo
 
 
 
-interface JointEntity extends PositionComponent, HandComponent{}
+interface JointEntity extends TransformComponent, HandComponent{}
 
 
 interface WebXRFrameHaver{

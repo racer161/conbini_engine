@@ -7,8 +7,7 @@ import { EditorControls } from "../../example/EditorControls";
 import RapierPhysics from "../../include/RapierPhysics";
 import { Entity } from "../core/Entity";
 import { System } from "../core/System"
-import { PositionComponent } from "./Transform";
-
+import { TransformComponent } from "../primitives/Transform";
 
 
 export interface GeometryComponent {
@@ -20,7 +19,7 @@ export interface MaterialComponent{
     material: Material
 }
 
-export interface RenderEntity extends PositionComponent, GeometryComponent, MaterialComponent{}
+export interface RenderEntity extends TransformComponent, GeometryComponent, MaterialComponent{}
 
 
 export class Render<T extends RenderEntity> extends System<T> 
@@ -68,7 +67,9 @@ export class Render<T extends RenderEntity> extends System<T>
         //init entities into the threejs scene
         this.scene.entities_x_system.get(this.name).forEach((e : RenderEntity) => {
             e.mesh = new THREE.Mesh(e.geometry, e.material);
-            e.mesh.position.set(e.position[0], e.position[1], e.position[2]);
+            console.log(e.transform);
+            const translation = e.transform.translation();
+            e.mesh.position.set(translation.value[0], translation.value[1], translation.value[2]);
             this.three_scene.add(e.mesh);
         })
 
@@ -89,8 +90,9 @@ export class Render<T extends RenderEntity> extends System<T>
         this.renderer.render( this.three_scene, this.camera );
     }
 
-    async update(e: T extends Entity & PositionComponent ? any : any): Promise<void> {
-        e.mesh.position.set(e.position[0], e.position[1], e.position[2]);
+    async update(e: T extends Entity & TransformComponent ? any : any): Promise<void> {
+        const translation = e.transform.translation();
+        e.mesh.position.set(translation.value[0], translation.value[1], translation.value[2]);
     }
 
 }

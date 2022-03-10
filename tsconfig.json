@@ -6,10 +6,10 @@
     "outDir": "./dist/",
     "noImplicitAny": true,
     "module": "esnext",
-    "target": "es5",
+    "target": "esnext",
     "allowJs": true,
     "moduleResolution": "node",
-    "downlevelIteration": true,
+    "downlevelIteration": false,
   },
   "include": ["src/**/*", "include", "example"],
 }

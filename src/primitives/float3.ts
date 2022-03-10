@@ -3,39 +3,41 @@ import { extend } from "lodash";
 import { IPrimitive } from ".";
 import { TypedArray } from "./iPrimitive";
 
-export class float3 extends Float32Array {
+export class float3{
 
-    static from(arr : [number,number,number]) : float3
-    {
-        return new Float32Array(arr) as float3;
+    value: Float32Array | [number, number, number]
+
+    constructor(x: number, y: number, z: number) {
+        this.value = [x,y,z];
     }
 
-    distance(b : float3 | [number, number, number]) : number
+    x = () => this.value[0];
+    y = () => this.value[1];
+    z = () => this.value[2];
+
+
+    distance(b : [number, number, number]) : number
     {
         const a = this;
-        let dx = this[0] - b[0];
-        let dy = this[1] - b[1];
-        let dz = this[2] - b[2];
+        let dx = this.value[0] - b[0];
+        let dy = this.value[1] - b[1];
+        let dz = this.value[2] - b[2];
         return Math.sqrt(dx * dx + dy * dy + dz * dz);
     }
 
     magnitude() : number
     {
-        return Math.sqrt(this[0] * this[0] + this[1] * this[1] + this[2] * this[2]);
+        return Math.sqrt(this.value[0] * this.value[0] + this.value[1] * this.value[1] + this.value[2] * this.value[2]);
     }
 
     normalize() : [number, number, number]
     {
         let len = this.magnitude();
-        return [this[0] / len, this[1] / len, this[2] / len];
+        return [this.value[0] / len, this.value[1] / len, this.value[2] / len];
     }
 
-    dot(b : float3 | [number, number, number]) : number
+    dot(b : [number, number, number]) : number
     {
-        return this[0] * b[0] + this[1] * b[1] + this[2] * b[2];
+        return this.value[0] * b[0] + this.value[1] * b[1] + this.value[2] * b[2];
     }
-}
-
-export namespace float3{
-    export const COMPONENT_COUNT : number = 3;
 }

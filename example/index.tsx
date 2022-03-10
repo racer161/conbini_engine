@@ -4,18 +4,22 @@ import { h } from "../src/engine/JSX";
 import { Sandbox } from "../src/engine/Sandbox";
 import { float3 } from "../src/primitives";
 import { HandEntity } from "../src/impl/Hand";
+import { Transform } from "../src/primitives/Transform";
 
-const Ball = <entity position={float3.from([1, 3, 1])} collider={ColliderDesc.ball(0.5)} mesh geometry={new THREE.SphereGeometry( 0.5 ,16, 16)} material={new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } )} rigidbody />;
+const Ball = <entity transform={new Transform()} collider={ColliderDesc.ball(0.5)} mesh geometry={new THREE.SphereGeometry( 0.5 ,16, 16)} material={new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } )} rigidbody />;
 
-const Floor = <entity static position={float3.from([0, 0, 0])} collider={ColliderDesc.cuboid(10, 0.1, 10).setRotation({x : 1, y : 1, z: 1, w: 0})} mesh geometry={new THREE.PlaneGeometry( 10, 10 ).rotateX( - Math.PI / 2 + 0.4 )} material={new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide})}  />;
+const Floor = <entity static transform={new Transform()} collider={ColliderDesc.cuboid(10, 0.1, 10).setRotation({x : 1, y : 1, z: 1, w: 0})} mesh geometry={new THREE.PlaneGeometry( 10, 10 ).rotateX( - Math.PI / 2 + 0.4 )} material={new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide})}  />;
 
 const scene_xml = (
     <root enable_xr={true}>
       <Ball/>
       <Floor/>
-      <HandEntity/>
     </root>
 );
+
+const new_t = new float3(1,2,3);
+
+console.log(new_t);
 
 console.log(scene_xml);
 
