@@ -66,7 +66,7 @@ export class Render<T extends RenderEntity> extends System<T>
 
 
         //init entities into the threejs scene
-        this.scene.getEntitiesFromArchetype<RenderEntity>(this.archetype).forEach(e => {
+        this.scene.entities_x_system.get(this.name).forEach((e : RenderEntity) => {
             e.mesh = new THREE.Mesh(e.geometry, e.material);
             e.mesh.position.set(e.position[0], e.position[1], e.position[2]);
             this.three_scene.add(e.mesh);
