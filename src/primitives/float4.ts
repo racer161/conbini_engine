@@ -9,6 +9,8 @@ export class float4 {
     x = () => this.value[0];
     y = () => this.value[1];
     z = () => this.value[2];
+    w = () => this.value[3];
+
 
     distance(b : [number, number, number, number]) : number
     {

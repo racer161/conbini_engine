@@ -1,4 +1,5 @@
 import { transform } from "lodash";
+import { Matrix4 } from "three";
 import { float3 } from "./float3";
 import { float4x4 } from "./float4x4";
 import { Quaternion } from "./Quaternion";
@@ -83,6 +84,12 @@ export class Transform extends float4x4
     setScale(scale : float3) : void
     {
         
+    }
+
+
+    asMatrix4() : Matrix4
+    {
+        return new Matrix4().fromArray(this.value);
     }
 
 }

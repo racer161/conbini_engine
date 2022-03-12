@@ -90,9 +90,10 @@ export class Render<T extends RenderEntity> extends System<T>
         this.renderer.render( this.three_scene, this.camera );
     }
 
-    async update(e: T extends Entity & TransformComponent ? any : any): Promise<void> {
+    async update(e: T): Promise<void> {
         const translation = e.transform.translation();
         e.mesh.position.set(translation.value[0], translation.value[1], translation.value[2]);
+        
     }
 
 }

@@ -5,6 +5,7 @@ import { TransformComponent } from "../primitives/Transform";
 import { Entity } from "../core/Entity";
 import { keys } from "ts-transformer-keys";
 import { float3 } from "../primitives";
+import { Quaternion } from "../primitives/Quaternion";
 
 interface RigidBodyComponent{
     rigidbody : RigidBody;
@@ -34,8 +35,10 @@ export class Physics<T extends Entity & PhysicsEntity> extends System<T>{
             // Create a dynamic rigid-body.
             let rigidBodyDesc = e.static ? RigidBodyDesc.newStatic() : RigidBodyDesc.newDynamic();
             const translation = e.transform.translation();
+            const rotation = e.transform.rotation();
 
             rigidBodyDesc.setTranslation(translation.value[0], translation.value[1], translation.value[2]);
+            rigidBodyDesc.setRotation(rotation.asRapier());
             e.rigidbody = this.physics.world.createRigidBody(rigidBodyDesc);
 
             // Create a cuboid collider attached to the dynamic rigidBody. 
@@ -53,6 +56,9 @@ export class Physics<T extends Entity & PhysicsEntity> extends System<T>{
         const translation = e.rigidbody.translation();
         //Update the position component
         e.transform.setTranslation(new float3(translation.x, translation.y, translation.z));
+        const rotation = e.rigidbody.rotation();
+        e.transform.setRotation(Quaternion.fromRapier(rotation));
+
     }
     
 
