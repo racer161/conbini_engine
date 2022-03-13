@@ -1,6 +1,6 @@
 import { ColliderDesc, RigidBodyDesc } from "@dimforge/rapier3d";
 import * as THREE from "three";
-import { BufferGeometry, Material, Mesh } from "three";
+import { BufferGeometry, Material, Matrix4, Mesh } from "three";
 import { VRButton } from "three/examples/jsm/webxr/VRButton";
 import { keys } from "ts-transformer-keys";
 import { EditorControls } from "../../example/EditorControls";
@@ -91,9 +91,8 @@ export class Render<T extends RenderEntity> extends System<T>
     }
 
     async update(e: T): Promise<void> {
-        const translation = e.transform.translation();
-        e.mesh.position.set(translation.value[0], translation.value[1], translation.value[2]);
-        
+
+        e.mesh.applyMatrix4(e.transform.asMatrix4())
     }
 
 }
