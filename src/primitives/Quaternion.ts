@@ -76,6 +76,10 @@ export class Quaternion extends float4
 
     public static fromEulerXYZ(x: number, y: number, z: number) : Quaternion
     {
+		x = x * (Math.PI/180);
+		y = y * (Math.PI/180);
+		z = z * (Math.PI/180);
+
 		// http://www.mathworks.com/matlabcentral/fileexchange/
 		// 	20696-function-to-convert-between-dcm-euler-angles-quaternions-and-euler-vectors/
 		//	content/SpinCalc.m
