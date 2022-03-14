@@ -1,6 +1,10 @@
 export interface Entity{
     children?: Entity[];
     id: string;
-    static?: boolean;
     name?: string;
+}
+
+export interface Static
+{
+    static?: boolean;
 }

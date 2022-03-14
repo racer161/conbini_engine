@@ -7,9 +7,9 @@ import { HandEntity } from "../src/impl/Hand";
 import { Transform } from "../src/primitives/Transform";
 import { Quaternion } from "../src/primitives/Quaternion";
 
-const Ball = <entity transform={new Transform()} collider={ColliderDesc.ball(0.5)} mesh geometry={new THREE.SphereGeometry( 0.5 ,16, 16)} material={new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } )} rigidbody />;
+const Ball = <entity transform={new Transform(new float3(0,5,0))} collider={ColliderDesc.ball(0.5)} mesh geometry={new THREE.SphereGeometry( 0.5 ,8, 8)} material={new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } )} rigidbody />;
 
-const Floor = <entity static transform={new Transform(new float3(0,-1,0))} collider={ColliderDesc.cuboid(10, 0.1, 10)} mesh geometry={new THREE.PlaneGeometry( 10, 10 )} material={new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide})}  />;
+const Floor = <entity static rigidbody transform={new Transform(new float3(0,-1,0), Quaternion.fromEulerXYZ(0,0,45), new float3(1,1,1))} collider={ColliderDesc.cuboid(5, 0.1, 5)} mesh geometry={new THREE.BoxGeometry( 5, 0.1, 5 )} material={new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide})}  />;
 
 
 
@@ -19,11 +19,5 @@ const scene_xml = (
       <Floor/>
     </root>
 );
-
-const new_t = new float3(1,2,3);
-
-console.log(new_t);
-
-console.log(scene_xml);
 
 const scene = new Sandbox(scene_xml);

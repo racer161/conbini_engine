@@ -11,10 +11,6 @@ export class float3{
         this.value = [x,y,z];
     }
 
-    x = () => this.value[0];
-    y = () => this.value[1];
-    z = () => this.value[2];
-
 
     distance(b : [number, number, number]) : number
     {

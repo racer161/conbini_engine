@@ -9,48 +9,23 @@ export class Transform extends float4x4
     constructor(position? : float3, rotation? : Quaternion, scale? : float3)
     {
         
-
+        super(
+            1.0, 0.0, 0.0, 0.0,
+            0.0, 1.0, 0.0, 0.0,
+            0.0, 0.0, 1.0, 0.0,
+            0.0, 0.0, 0.0, 1.0
+        );
         //if no arguments were provided just use the identity matrix
-        if(!position && !rotation && !scale){
-            super(
-                1.0, 0.0, 0.0, 0.0,
-                0.0, 1.0, 0.0, 0.0,
-                0.0, 0.0, 1.0, 0.0,
-                0.0, 0.0, 0.0, 1.0
-            );
-            
-        }else
-        {
-            var position_value;
-            var rotation_value;
-            var scale_value;
+        if(!position && !rotation && !scale) return;
 
-            if(!position) position_value = [0,0,0];
-            else position_value = position.value;
-            if(!rotation) rotation_value = [0,0,0,1];
-            else rotation_value = rotation.value;
-            if(!scale) scale_value = [1,1,1];
-            else scale_value = scale.value;
+        console.log(position);
 
-            super(
-                (1.0 - 2.0 * rotation_value[1] ** 2.0 - 2.0 * rotation_value[2] ** 2.0) + scale_value[0],
-                (2.0 * rotation_value[0] * rotation_value[1] - 2.0 * rotation_value[2] * rotation_value[3]) * scale_value[0],
-                (2.0 * rotation_value[0] * rotation_value[2] + 2.0 * rotation_value[1] * rotation_value[3]) * scale_value[0],
-                position_value[0],
-    
-                2.0 * rotation_value[0] * rotation_value[1] + 2.0 * rotation_value[2] * rotation_value[3] * scale_value[0],
-                (1.0 - 2.0 * rotation_value[0] ** 2.0 - 2.0 * rotation_value[2] ** 2.0) * scale_value[1],
-                (2.0 * rotation_value[1] * rotation_value[2] - 2.0 * rotation_value[0] * rotation_value[3]) * scale_value[1],
-                position_value[1],
-    
-                2.0 * rotation_value[0] * rotation_value[2] - 2.0 * rotation_value[1] * rotation_value[3] * scale_value[0],
-                2.0 * rotation_value[1] * rotation_value[2] + 2.0 * rotation_value[0] * rotation_value[3] * scale_value[1],
-                (1.0 - 2.0 * rotation_value[0] ** 2.0 - 2.0 * rotation_value[1] ** 2.0) * scale_value[2],
-                position_value[2],
-    
-                0.0, 0.0, 0.0, 1.0
-            );
-        }
+        if(!position) position = new float3(0,0,0);
+        if(!rotation) rotation = new Quaternion(0,0,0,1);
+        if(!scale) scale = new float3(1,1,1);
+
+        this.compose(position, rotation, scale);
+
         
     }
 
@@ -68,12 +43,13 @@ export class Transform extends float4x4
 
     rotation() : Quaternion
     {
-        throw new Error("Not implemented");
+        return Quaternion.fromTransformationMatrix(this);
     }
 
     setRotation(rotation : Quaternion) : void
     {
-        throw new Error("Not implemented");
+        //TODO: make this less expensive
+        this.compose(this.translation(), rotation, this.scale());
     }
 
     scale() : float3
@@ -90,6 +66,38 @@ export class Transform extends float4x4
     asMatrix4() : Matrix4
     {
         return new Matrix4().fromArray(this.value);
+    }
+
+    compose(position : float3, quaternion : Quaternion, scale : float3) : void
+    {
+
+		const x = quaternion.value[0], y = quaternion.value[1], z = quaternion.value[2], w = quaternion.value[3];
+		const x2 = x + x,	y2 = y + y, z2 = z + z;
+		const xx = x * x2, xy = x * y2, xz = x * z2;
+		const yy = y * y2, yz = y * z2, zz = z * z2;
+		const wx = w * x2, wy = w * y2, wz = w * z2;
+
+		const sx = scale.value[0], sy = scale.value[1], sz = scale.value[2];
+
+		this.value[ 0 ] = ( 1 - ( yy + zz ) ) * sx;
+		this.value[ 1 ] = ( xy + wz ) * sx;
+		this.value[ 2 ] = ( xz - wy ) * sx;
+		this.value[ 3 ] = 0;
+
+		this.value[ 4 ] = ( xy - wz ) * sy;
+		this.value[ 5 ] = ( 1 - ( xx + zz ) ) * sy;
+		this.value[ 6 ] = ( yz + wx ) * sy;
+		this.value[ 7 ] = 0;
+
+		this.value[ 8 ] = ( xz + wy ) * sz;
+		this.value[ 9 ] = ( yz - wx ) * sz;
+		this.value[ 10 ] = ( 1 - ( xx + yy ) ) * sz;
+		this.value[ 11 ] = 0;
+
+		this.value[ 12 ] = position.value[0];
+		this.value[ 13 ] = position.value[1];
+		this.value[ 14 ] = position.value[2];
+		this.value[ 15 ] = 1;
     }
 
 }

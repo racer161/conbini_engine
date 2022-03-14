@@ -30,6 +30,7 @@ export class Sandbox{
 
         //this.system_array.push(new HandInput(this));
         this.init();
+        console.log(this.entity_array);
     }
 
     async init(){

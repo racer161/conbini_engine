@@ -67,10 +67,13 @@ export class Render<T extends RenderEntity> extends System<T>
         //init entities into the threejs scene
         this.scene.entities_x_system.get(this.name).forEach((e : RenderEntity) => {
             e.mesh = new THREE.Mesh(e.geometry, e.material);
-            console.log(e.transform);
-            const translation = e.transform.translation();
-            e.mesh.position.set(translation.value[0], translation.value[1], translation.value[2]);
+
+
+            e.mesh.matrixAutoUpdate = false;
             this.three_scene.add(e.mesh);
+
+            e.mesh.matrix = e.transform.asMatrix4();
+            e.mesh.updateMatrixWorld(true);
         })
 
         this.renderer.setSize( window.innerWidth, window.innerHeight );
@@ -92,7 +95,9 @@ export class Render<T extends RenderEntity> extends System<T>
 
     async update(e: T): Promise<void> {
 
-        e.mesh.applyMatrix4(e.transform.asMatrix4())
+        e.mesh.matrix = e.transform.asMatrix4();
+        e.mesh.updateMatrixWorld(true);
+
     }
 
 }
