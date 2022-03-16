@@ -22,24 +22,27 @@ export class Sandbox{
         
         this.system_array = new Array<System<any>>();
 
+        this.system_array.push(new HandInput(this));
         const render_system = new Render<RenderEntity>(this);
         this.render_system = render_system;
         this.system_array.push(render_system);
         this.system_array.push(new Physics(this));
 
 
-        //this.system_array.push(new HandInput(this));
+        
         this.init();
         console.log(this.entity_array);
     }
 
     async init(){
-        //call init on all systems
-        for(let system of this.system_array){
+        //call init on all systems in the order of the init_priority
+        for(let system of this.system_array.sort((a, b) => a.init_priority - b.init_priority)){
             console.log(`Initializing ${system.name}`);
             this.entities_x_system.set(system.name, this.getEntitiesFromArchetype(system.archetype));
             await system.init();
         }
+
+        this.system_array = this.system_array.sort((a, b) => a.run_priority - b.run_priority);
 
         var self = this;
         //create the update loop

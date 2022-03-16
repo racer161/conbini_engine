@@ -6,27 +6,31 @@ import { Quaternion } from "./Quaternion";
 
 export class Transform extends float4x4
 {
-    constructor(position? : float3, rotation? : Quaternion, scale? : float3)
+    constructor(array?: Float32Array | [number, number, number, number,
+                                        number, number, number, number,
+                                        number, number, number, number,
+                                        number, number, number, number] )
     {
-        
-        super(
-            1.0, 0.0, 0.0, 0.0,
-            0.0, 1.0, 0.0, 0.0,
-            0.0, 0.0, 1.0, 0.0,
-            0.0, 0.0, 0.0, 1.0
-        );
-        //if no arguments were provided just use the identity matrix
-        if(!position && !rotation && !scale) return;
 
-        console.log(position);
+        if(array) super(array);
+        //init the array to identity matrix
+        else super();        
+    }
+
+    static fromPositionRotationScale(position? : float3, rotation? : Quaternion, scale? : float3) : Transform
+    {
+        let transform = new Transform();
+        //if no arguments were provided just use the identity matrix
+        if(!position && !rotation && !scale) return transform; 
 
         if(!position) position = new float3(0,0,0);
         if(!rotation) rotation = new Quaternion(0,0,0,1);
         if(!scale) scale = new float3(1,1,1);
 
-        this.compose(position, rotation, scale);
 
         
+        transform.compose(position, rotation, scale);
+        return transform;
     }
 
     translation() : float3
@@ -59,7 +63,7 @@ export class Transform extends float4x4
 
     setScale(scale : float3) : void
     {
-        
+        this.compose(this.translation(), this.rotation(), scale);
     }
 
 
@@ -98,6 +102,16 @@ export class Transform extends float4x4
 		this.value[ 13 ] = position.value[1];
 		this.value[ 14 ] = position.value[2];
 		this.value[ 15 ] = 1;
+    }
+
+    setFromFloat32Array(array : Float32Array )
+    {
+        this.value = array;
+    }
+
+    static fromFloat32Array(array : Float32Array ) : Transform
+    {
+        return new Transform(array);
     }
 
 }

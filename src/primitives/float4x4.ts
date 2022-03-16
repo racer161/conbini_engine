@@ -7,16 +7,24 @@ export class float4x4 {
 		number, number, number, number
 	]
 
-	constructor(n11 : number, n12 : number, n13 : number, n14 : number, 
-				n21 : number, n22 : number, n23 : number, n24 : number, 
-				n31 : number, n32 : number, n33 : number, n34 : number,
-				n41 : number, n42 : number, n43 : number, n44 : number)
+	constructor(array?: Float32Array | [number, number, number, number,
+										number, number, number, number,
+										number, number, number, number,
+										number, number, number, number] )
 	{
-		this.value = [n11, n12, n13, n14, n21, n22, n23, n24, n31, n32, n33, n34, n41, n42, n43, n44];
+
+		if(array) this.value = array;
+		else this.value =  [1.0, 0.0, 0.0, 0.0,
+							0.0, 1.0, 0.0, 0.0,
+							0.0, 0.0, 1.0, 0.0,
+							0.0, 0.0, 0.0, 1.0];
 	}
 
 
-    public static identity =
+    public static identity : 	[number, number, number, number,
+								 number, number, number, number,
+								 number, number, number, number,
+								 number, number, number, number] =
 	   [1.0, 0.0, 0.0, 0.0,
 		0.0, 1.0, 0.0, 0.0,
 		0.0, 0.0, 1.0, 0.0,

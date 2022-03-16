@@ -5,12 +5,16 @@ import { TransformComponent } from "../primitives/Transform";
 import { Entity } from "../core/Entity";
 import { keys } from "ts-transformer-keys";
 
-import { HandComponent } from "./Hand";
-import { XRInputSource, XRSession, WebXRManager, XRFrame, XRHandJoint, XRJointPose } from "three";
+import { HandComponent, HandType } from "./Hand";
+import { XRInputSource, XRSession, WebXRManager, XRFrame, XRHandJoint, XRJointPose, XRHand, XRReferenceSpace } from "three";
+import { XRSpace } from "webxr";
+import { float3 } from "../primitives";
+import { transform } from "lodash";
+import { ColliderComponent, RigidBodyComponent } from "./Physics";
 
 
 
-interface JointEntity extends TransformComponent, HandComponent{}
+interface JointEntity extends TransformComponent, HandComponent, ColliderComponent, RigidBodyComponent{}
 
 
 interface WebXRFrameHaver{
@@ -24,20 +28,19 @@ export class HandInput<T extends Entity & JointEntity> extends System<T>{
     archetype: string[] = keys<JointEntity>();
     session: XRSession;
 
-    rightHand: XRInputSource;
-    leftHand: XRInputSource;
+    rightHand: XRHand;
+    leftHand: XRHand;
 
-    xr_manager: WebXRManager & WebXRFrameHaver;
+    xr_manager: WebXRManager;
     cached_pose: Float32Array;
 
-    //TODO: convert this to a scene XML object that you can just import
-    //rather than being hardcoded entity creation here?
+    init_priority: number = 2;
+    run_priority: number = 2;
+
     async init(): Promise<void>
     {
-
         const renderer = this.scene.render_system.renderer;
-        this.xr_manager = renderer.xr as WebXRManager & WebXRFrameHaver;
-        
+        this.xr_manager = renderer.xr as WebXRManager;
         
     }
 
@@ -45,22 +48,17 @@ export class HandInput<T extends Entity & JointEntity> extends System<T>{
     async beforeUpdate(time: number, frame?: XRFrame): Promise<void>{
         if(!this.session) this.session = this.scene.render_system.renderer.xr.getSession();
         if(this.session && (!this.rightHand || !this.leftHand)) this.setHands();
-
-        const referenceSpace = this.xr_manager.getReferenceSpace();
-        
-        if(this.leftHand){
-            let indexFingerTipJoint = this.leftHand.hand.get("index-finger-tip" as unknown as XRHandJoint);
-            const pose = frame.getJointPose(indexFingerTipJoint, referenceSpace); // XRJointPose
-            if(pose){
-                this.cached_pose = pose.transform.matrix;
-            }
-        }
-        
-        console.log(this.cached_pose.at(4));
     }
 
-    async update(e: T): Promise<void> {
-        
+    async update(e: T, time: number, frame?: XRFrame): Promise<void> {
+        if(typeof(e.joint_space) === "boolean") return;
+        const transform_snapshot = frame.getJointPose(e.joint_space, this.xr_manager.getReferenceSpace());
+        //if the transform is not valid, don't update it
+        if(transform_snapshot){
+            //e.transform.setFromFloat32Array(transform_snapshot.transform.matrix);
+            e.rigidbody.setNextKinematicTranslation(transform_snapshot.transform.position);
+            e.rigidbody.setNextKinematicRotation(transform_snapshot.transform.orientation);
+        } 
     }
     
     setHands(){
@@ -68,15 +66,30 @@ export class HandInput<T extends Entity & JointEntity> extends System<T>{
         this.session.inputSources.forEach(source => {
             if(source.hand){
                 if(source.handedness === 'right'){
-                    this.rightHand = source;
+                    this.rightHand = source.hand;
                     console.log("right hand: ", source);
+                    this.setJointPoses(source.hand, HandType.Right);
                 }else{
-                    this.leftHand = source;
+                    this.leftHand = source.hand;
                     console.log("left hand: ", source);
-
+                    this.setJointPoses(source.hand, HandType.Left);
                 }
             }
         });
+    }
+
+    setJointPoses(hand : XRHand, hand_type : HandType)
+    {
+        console.log(`Setting ${hand_type} joint poses`);
+        
+
+        this.scene.entities_x_system.get(this.name).forEach((e : JointEntity) => {
+            //if the entity is on the same hand as the one we're looking at
+            if(e.hand_type === hand_type){
+                //set the joint space pointer to the entities pointer
+                e.joint_space = hand.get(e.joint_name as unknown as XRHandJoint);
+            } 
+        })
     }
 
 }

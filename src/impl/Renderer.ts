@@ -34,6 +34,9 @@ export class Render<T extends RenderEntity> extends System<T>
 
     archetype: string[] = keys<RenderEntity>();
 
+    init_priority: number = 0;
+    run_priority: number = 1000000000;
+
     //TODO: make this respect the entities created and not just harcode this scene
     async init(): Promise<void> {
         this.renderer = new THREE.WebGLRenderer( { antialias: true } );
@@ -66,6 +69,7 @@ export class Render<T extends RenderEntity> extends System<T>
 
         //init entities into the threejs scene
         this.scene.entities_x_system.get(this.name).forEach((e : RenderEntity) => {
+
             e.mesh = new THREE.Mesh(e.geometry, e.material);
 
 

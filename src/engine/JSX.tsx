@@ -12,6 +12,9 @@ declare global {
             },
             root: {
                 enable_xr : boolean;
+            },
+            div:{
+                children?: any;
             }
             [tagName: string]: any;
         }
@@ -22,13 +25,21 @@ declare global {
 //A function that traverses the JSX tree and creates the corresponding entities
 export function h(tag: Entity | String, props: any, ...children: any[]) : Entity
 {
-
     if (tagIsEntity(tag)) return tag;
-    else return {
+    
+    //if its a functional entity call it and pass that as props
+    if(tagIsLambda(tag)) return tag.call(null, props);
+    
+    return {
         ...props,
         id : uniqueId(),
         children : children,
     }
+}
+
+function tagIsLambda(tag: any) : tag is Function
+{
+    return typeof tag === "function";
 }
 
 function tagIsEntity(tag: Entity | String) : tag is Entity

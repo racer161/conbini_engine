@@ -10,6 +10,9 @@ export abstract class System<T>
 {
     scene: Sandbox;
 
+    init_priority: number = 0;
+    run_priority: number = 0;
+
     archetype: string[];
 
     abstract name: string;
