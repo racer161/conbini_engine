@@ -17,6 +17,8 @@ export class Sandbox{
 
     render_system: Render<RenderEntity>;
 
+    current_frame_is_processing: boolean;
+
     constructor(root : Entity){
         this.entity_array = root_to_entity_array(root);
         
@@ -46,11 +48,19 @@ export class Sandbox{
 
         var self = this;
         //create the update loop
-        this.render_system.renderer.setAnimationLoop(async (time: number, frame?: XRFrame) => await self.update(time, frame));
+        this.render_system.renderer.setAnimationLoop((time: number, frame?: XRFrame) => {
+            if(self.current_frame_is_processing) return;
+            else self.update(time, frame);
+        });
 
     }
 
+    get_entity_from_id(id : string){
+        return this.entity_array.find(e => e.id === id);
+    }
+
     async update(time: number, frame?: XRFrame){
+        this.current_frame_is_processing = true;
         for(let system of this.system_array){
             //allow the system to do preprocessing
             await system.beforeUpdate(time, frame);
@@ -62,11 +72,11 @@ export class Sandbox{
                 }
             ));
         }
+        this.current_frame_is_processing = false;
     }
 
     getEntitiesFromArchetype<T>(archetype : string[]) : T[]{
         //for each entity in the array
-        //console.log(`archetype :  ${archetype}`);
         return this.entity_array
         .filter((e : Entity) => archetype.every(val => e.hasOwnProperty(val)))
         .map(e => e as unknown as T);

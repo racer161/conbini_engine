@@ -6,15 +6,15 @@ import { Entity } from "../core/Entity";
 import { keys } from "ts-transformer-keys";
 
 import { HandComponent, HandType } from "./Hand";
-import { XRInputSource, XRSession, WebXRManager, XRFrame, XRHandJoint, XRJointPose, XRHand, XRReferenceSpace } from "three";
+import { XRInputSource, XRSession, WebXRManager, XRFrame, XRHandJoint, XRJointPose, XRHand, XRReferenceSpace, Vector3, Quaternion } from "three";
 import { XRSpace } from "webxr";
 import { float3 } from "../primitives";
 import { transform } from "lodash";
-import { ColliderComponent, RigidBodyComponent } from "./Physics";
+import { ColliderComponent, JointComponent, RigidBodyComponent } from "./Physics";
 
 
 
-interface JointEntity extends TransformComponent, HandComponent, ColliderComponent, RigidBodyComponent{}
+interface JointEntity extends TransformComponent, HandComponent, RigidBodyComponent, JointComponent{}
 
 
 interface WebXRFrameHaver{
@@ -47,6 +47,7 @@ export class HandInput<T extends Entity & JointEntity> extends System<T>{
     
     async beforeUpdate(time: number, frame?: XRFrame): Promise<void>{
         if(!this.session) this.session = this.scene.render_system.renderer.xr.getSession();
+        //TODO: detect hand rebinding after session pause
         if(this.session && (!this.rightHand || !this.leftHand)) this.setHands();
     }
 
@@ -54,15 +55,20 @@ export class HandInput<T extends Entity & JointEntity> extends System<T>{
         if(typeof(e.joint_space) === "boolean") return;
         const transform_snapshot = frame.getJointPose(e.joint_space, this.xr_manager.getReferenceSpace());
         //if the transform is not valid, don't update it
+
+        const entity_2 = this.scene.get_entity_from_id(e.joined_entity_id) as unknown as JointEntity;
+        entity_2.rigidbody.wakeUp();
         if(transform_snapshot){
             //e.transform.setFromFloat32Array(transform_snapshot.transform.matrix);
-            e.rigidbody.setNextKinematicTranslation(transform_snapshot.transform.position);
-            e.rigidbody.setNextKinematicRotation(transform_snapshot.transform.orientation);
+            const pos = new Vector3(transform_snapshot.transform.position.x, transform_snapshot.transform.position.y, transform_snapshot.transform.position.z);
+            e.rigidbody.setNextKinematicTranslation(pos);
+            const rot = new Quaternion(transform_snapshot.transform.orientation.x, transform_snapshot.transform.orientation.y, transform_snapshot.transform.orientation.z, transform_snapshot.transform.orientation.w);
+            e.rigidbody.setNextKinematicRotation(rot);
         } 
     }
     
     setHands(){
-        
+        if(!this.session.inputSources) return;
         this.session.inputSources.forEach(source => {
             if(source.hand){
                 if(source.handedness === 'right'){
@@ -82,7 +88,6 @@ export class HandInput<T extends Entity & JointEntity> extends System<T>{
     {
         console.log(`Setting ${hand_type} joint poses`);
         
-
         this.scene.entities_x_system.get(this.name).forEach((e : JointEntity) => {
             //if the entity is on the same hand as the one we're looking at
             if(e.hand_type === hand_type){

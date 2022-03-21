@@ -1,5 +1,7 @@
 import { World, Vector, ColliderDesc, RigidBody } from '@dimforge/rapier3d';
 
+const QUEST_2_DEFAULT_WEBXR_FPS = 90.0;
+
 export default class RapierPhysics
 {
     //wasm object holder
@@ -12,6 +14,7 @@ export default class RapierPhysics
         this.RAPIER = rapier;
         this.gravity = { x: 0.0, y: -9.81, z: 0.0 };
         this.world = new World(this.gravity);
+        this.world.timestep = 1.0 / 60.0;
     }
 
     static async fromWASM() : Promise<RapierPhysics>
@@ -20,7 +23,7 @@ export default class RapierPhysics
         return new RapierPhysics(RAPIER);
     }
 
-    update(deltaTime: number){
+    async step(){
         this.world.step();
     }
 
