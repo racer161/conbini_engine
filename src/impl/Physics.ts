@@ -6,7 +6,7 @@ import { Entity, Static } from "../core/Entity";
 import { keys } from "ts-transformer-keys";
 import { float3 } from "../primitives";
 import { Quaternion } from "../primitives/Quaternion";
-import { Sandbox } from "../engine/Sandbox";
+import { Scene } from "../engine/Scene";
 
 export interface RigidBodyComponent{
     rigidbody_type : RigidBodyType;
@@ -27,12 +27,12 @@ export interface MassComponent{
 
 export interface JointComponent{
     joint_type? : JointType;
-    joined_entity_id? : string;
+    joined_entity? : RigidBodyComponent;
     joint_anchor_1? : float3;
     joint_anchor_2? : float3;
 }
 
-interface PhysicsEntity extends TransformComponent, RigidBodyComponent{}
+export interface PhysicsEntity extends TransformComponent, RigidBodyComponent{}
 
 export class Physics<T extends Entity & PhysicsEntity> extends System<T>{
 
@@ -73,7 +73,7 @@ export class Physics<T extends Entity & PhysicsEntity> extends System<T>{
     async update(e: T & Static): Promise<void> {
         const translation = e.rigidbody.translation();
         const rotation = e.rigidbody.rotation();
-        e.transform.compose(new float3(translation.x, translation.y, translation.z), Quaternion.fromRapier(rotation), new float3(1,1,1));
+        e.transform.compose(new float3([translation.x, translation.y, translation.z]), Quaternion.fromRapier(rotation), float3.one);
 
     }
 }
@@ -85,7 +85,7 @@ function init_rigidbody(e : PhysicsEntity & Entity & Static & MassComponent & CC
 
     if(e.rigidbody_ccd) rigidBodyDesc.setCcdEnabled(true);
 
-    if(typeof(e.mass) === "number"){
+    if(e.mass){
         rigidBodyDesc.mass = e.mass;
     }
     
@@ -106,29 +106,7 @@ function init_collider(e : PhysicsEntity & Entity & Static & MassComponent & Col
     //collider.setCollisionGroups(group1);
 }
 
-/*
-function init_joints(e : PhysicsEntity & Entity & Static & KinematicComponent & MassComponent & JointComponent, world : World, scene : Sandbox)
-{
-    let params = JointData.spherical({ 
-        x: e.joint_anchor_1.value[0], 
-        y: e.joint_anchor_1.value[1], 
-        z: e.joint_anchor_1.value[2] 
-    }, 
-    { 
-        x: e.joint_anchor_2.value[0], 
-        y: e.joint_anchor_2.value[1], 
-        z: e.joint_anchor_2.value[2] 
-    });
-
-    
-    
-    const entity_2 = scene.get_entity_from_id(e.joined_entity_id) as unknown as PhysicsEntity;
-    //console.log(e.rigidbody);
-    console.log(entity_2.rigidbody);
-    let joint = world.createImpulseJoint(params, e.rigidbody, entity_2.rigidbody);
-}*/
-
-function init_joints (e : PhysicsEntity & Entity & Static & MassComponent & JointComponent, world : World, scene : Sandbox)
+function init_joints (e : PhysicsEntity & Entity & Static & MassComponent & JointComponent, world : World, scene : Scene)
 {
     let axis = { x: 0.0, y: 1.0, z: 0.0 };
     let params = JointData.prismatic({ x: 0.0, y: 0.0, z: 0.0 }, { x: 0.0, y: 0.0, z: 0.0 }, axis);
@@ -136,9 +114,7 @@ function init_joints (e : PhysicsEntity & Entity & Static & MassComponent & Join
     params.limits = [-0.001, 0.001];
     //params.jointType = e.joint_type;
     
-
-    const entity_2 = scene.get_entity_from_id(e.joined_entity_id) as unknown as PhysicsEntity;
-    let joint = world.createImpulseJoint(params, e.rigidbody, entity_2.rigidbody);
+    let joint = world.createImpulseJoint(params, e.rigidbody, e.joined_entity.rigidbody);
 
     (joint as PrismaticImpulseJoint).configureMotorPosition(0, 0.5, 0.5);
     //(joint as PrismaticImpulseJoint).configureMotorModel(MotorModel.AccelerationBased);

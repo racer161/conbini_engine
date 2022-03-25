@@ -23,9 +23,9 @@ export class Transform extends float4x4
         //if no arguments were provided just use the identity matrix
         if(!position && !rotation && !scale) return transform; 
 
-        if(!position) position = new float3(0,0,0);
-        if(!rotation) rotation = new Quaternion(0,0,0,1);
-        if(!scale) scale = new float3(1,1,1);
+        if(!position) position = float3.zero;
+        if(!rotation) rotation = Quaternion.identity;
+        if(!scale) scale = float3.one;
 
 
         
@@ -35,7 +35,7 @@ export class Transform extends float4x4
 
     translation() : float3
     {
-        return new float3(this.value[12], this.value[13], this.value[14]);
+        return new float3([this.value[12], this.value[13], this.value[14]]);
     }
 
     setTranslation(translation : float3) : void
@@ -58,7 +58,7 @@ export class Transform extends float4x4
 
     scale() : float3
     {
-        return new float3(this.value[0], this.value[5], this.value[10]);
+        return new float3([this.value[0], this.value[5], this.value[10]]);
     }
 
     setScale(scale : float3) : void

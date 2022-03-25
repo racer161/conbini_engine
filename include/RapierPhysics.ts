@@ -17,6 +17,11 @@ export default class RapierPhysics
         this.world.timestep = 1.0 / 60.0;
     }
 
+    take_snapshot() : Uint8Array
+    {
+        return this.world.takeSnapshot();
+    }
+
     static async fromWASM() : Promise<RapierPhysics>
     {
         const RAPIER = await import('@dimforge/rapier3d');

@@ -6,7 +6,7 @@ import { HandInput } from "../impl/HandInput";
 import { Physics } from "../impl/Physics";
 import { RenderEntity, Render } from "../impl/Renderer";
 
-export class Sandbox{
+export class Scene{
 
     //TODO: eventually break this out into its own class that can manage the entities_x_system map as well
     entity_array : Entity[] = [];
@@ -19,8 +19,8 @@ export class Sandbox{
 
     current_frame_is_processing: boolean;
 
-    constructor(root : Entity){
-        this.entity_array = root_to_entity_array(root);
+    constructor(starting_entities : Entity[]){
+        this.entity_array = starting_entities;
         
         this.system_array = new Array<System<any>>();
 
@@ -30,8 +30,6 @@ export class Sandbox{
         this.system_array.push(render_system);
         this.system_array.push(new Physics(this));
 
-
-        
         this.init();
         console.log(this.entity_array);
     }
@@ -48,7 +46,7 @@ export class Sandbox{
 
         var self = this;
         //create the update loop
-        this.render_system.renderer.setAnimationLoop((time: number, frame?: XRFrame) => {
+        this.render_system.renderer.setAnimationLoop((time: number, frame: XRFrame) => {
             if(self.current_frame_is_processing) return;
             else self.update(time, frame);
         });
@@ -56,7 +54,7 @@ export class Sandbox{
     }
 
     get_entity_from_id(id : string){
-        return this.entity_array.find(e => e.id === id);
+        return this.entity_array.find(e => e.id === id);           
     }
 
     async update(time: number, frame?: XRFrame){
@@ -85,25 +83,3 @@ export class Sandbox{
 
 }
 
-function root_to_entity_array(root : Entity) : Entity[]
-{
-    let entity_array : Entity[] = [];
-
-    //iteratively descend the object tree and create entities and entering .children
-    function iterate_object(obj : Entity){
-
-        //delete entity.children;
-        if(obj.children) obj.children.forEach(child => iterate_object(child));
-
-        delete obj.children;
-
-        entity_array.push({
-            id : uniqueId(),
-            ...obj
-        });
-    }
-    
-    root.children.forEach(child => iterate_object(child));
-
-    return entity_array;
-}

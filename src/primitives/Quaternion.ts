@@ -9,8 +9,10 @@ export class Quaternion extends float4
         return new Quaternion(rotation.x,rotation.y,rotation.z,rotation.w);
     }
 
+	public static identity : Quaternion = new Quaternion(0,0,0,1);
+
     constructor(x: number = 0, y: number = 0, z: number = 0, w: number = 1) {
-        super(x,y,z,w);
+        super([x,y,z,w]);
     }
 
     asRapier() : Rotation

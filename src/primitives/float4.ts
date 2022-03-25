@@ -2,8 +2,8 @@ export class float4 {
 
     value: Float32Array | [number, number, number, number]
 
-    constructor(x: number, y: number, z: number, w: number) {
-        this.value = [x,y,z,w];
+    constructor(array: Float32Array | [number, number, number, number]) {
+        this.value = array;
     }
 
     x = () => this.value[0];

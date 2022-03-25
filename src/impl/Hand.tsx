@@ -1,10 +1,11 @@
 
 import { ColliderDesc, JointType, RigidBodyType } from '@dimforge/rapier3d';
-import * as THREE from 'three';
-import { XRJointSpace } from 'three';
-import {h} from '../engine/JSX';
+import { DoubleSide, Mesh, MeshBasicMaterial, Side, Sphere, SphereGeometry, Vector3, XRJointSpace } from 'three';
+import { Entity } from '../core/Entity';
 import { float3 } from '../primitives';
 import { Transform } from '../primitives/Transform';
+import { CCDComponent, ColliderComponent, JointComponent, MassComponent, PhysicsEntity } from './Physics';
+import { RenderEntity } from './Renderer';
 
 export interface HandComponent{
     joint_name : string,
@@ -19,76 +20,80 @@ export enum HandType
     Middle
 }
 
-const HandJointEntity = (props : { joint_name : string, hand_type: HandType}) => {
-    const physics_cube = (<entity 
-        transform={new Transform()} 
-        mesh 
-        geometry={new THREE.BoxGeometry( .01, 0.01, .01 )}
-        rigidbody
-        rigidbody_type={RigidBodyType.Dynamic}
-        rigidbody_ccd={true}
-        collider={ColliderDesc.cuboid(.01, 0.01, .01).setFriction(1)}
+function hand_joint_entity(joint_name : string, hand_type: HandType) : Entity[]
+{
 
-        material={new THREE.MeshBasicMaterial( {color: 0x0000ff, side: THREE.DoubleSide})} 
-        mass={0.1}
-        />);
+    const geometry = new SphereGeometry(0.01,8,8 );
+    const material = new MeshBasicMaterial( {color: 0xffffff , side: DoubleSide} );
 
-    const hand_tracked_point = (<entity hand_type={props.hand_type}
-        joint_space
-        joint_name={props.joint_name} 
-        transform={new Transform()} 
-        rigidbody
-        rigidbody_type={RigidBodyType.KinematicPositionBased}
-        joint_type={JointType.Spherical}
-        joined_entity_id={physics_cube.id}
-        joint_anchor_1={new float3(0,0,0)}
-        joint_anchor_2={new float3(0,0,0)}
-    />);
+    const physics_cube : Entity & PhysicsEntity & RenderEntity & CCDComponent & ColliderComponent & MassComponent = 
+    { 
+        id: undefined,
+        transform: new Transform(),
+        mesh: new Mesh( geometry, material ),
+        geometry: geometry,
+        rigidbody: undefined,
+        rigidbody_type: RigidBodyType.Dynamic,
+        rigidbody_ccd: true,
+        collider: ColliderDesc.ball(.01).setFriction(1),
+        material: material,
+        mass: 0.1 
+    };
 
-    return (
-        <div>
-            {hand_tracked_point}
-            {physics_cube}
-        </div>
-    )
+    const hand_tracked_point : Entity & HandComponent & PhysicsEntity & JointComponent = {
+        id: undefined,
+        hand_type: hand_type,
+        joint_space: undefined,
+        joint_name: joint_name,
+        transform: new Transform(),
+        rigidbody: undefined,
+        rigidbody_type: RigidBodyType.KinematicPositionBased,
+        joint_type: JointType.Spherical,
+        joined_entity : physics_cube,
+        joint_anchor_1 : float3.zero,
+        joint_anchor_2: float3.zero,
+    };
+
+    return [physics_cube, hand_tracked_point];
     
 }
 
 
-const HandEntity = (props : { hand_type : HandType }) => (
-    <div>
-        <HandJointEntity joint_name="wrist" hand_type={props.hand_type}/>
+function hand_entity(hand_type : HandType) : Entity[]
+{ 
+    return [
+        ...hand_joint_entity("wrist", hand_type),
 
-        <HandJointEntity joint_name="thumb-metacarpal" hand_type={props.hand_type}/>
-        <HandJointEntity joint_name="thumb-phalanx-proximal" hand_type={props.hand_type}/>
-        <HandJointEntity joint_name="thumb-phalanx-distal" hand_type={props.hand_type}/>
-        <HandJointEntity joint_name="thumb-tip" hand_type={props.hand_type}/>
+        ...hand_joint_entity( "thumb-metacarpal" , hand_type ),
+        ...hand_joint_entity( "thumb-phalanx-proximal" , hand_type ),
+        ...hand_joint_entity( "thumb-phalanx-distal" , hand_type ),
+        ...hand_joint_entity( "thumb-tip" , hand_type ),
 
-        <HandJointEntity joint_name="index-finger-metacarpal" hand_type={props.hand_type}/>
-        <HandJointEntity joint_name="index-finger-phalanx-proximal" hand_type={props.hand_type}/>
-        <HandJointEntity joint_name="index-finger-phalanx-intermediate" hand_type={props.hand_type}/>
-        <HandJointEntity joint_name="index-finger-phalanx-distal" hand_type={props.hand_type}/>
-        <HandJointEntity joint_name="index-finger-tip" hand_type={props.hand_type}/>
+        ...hand_joint_entity( "index-finger-metacarpal" , hand_type ),
+        ...hand_joint_entity( "index-finger-phalanx-proximal" , hand_type ),
+        ...hand_joint_entity( "index-finger-phalanx-intermediate" , hand_type ),
+        ...hand_joint_entity( "index-finger-phalanx-distal" , hand_type ),
+        ...hand_joint_entity( "index-finger-tip" , hand_type ),
 
-        <HandJointEntity joint_name="middle-finger-metacarpal" hand_type={props.hand_type}/>
-        <HandJointEntity joint_name="middle-finger-phalanx-proximal" hand_type={props.hand_type}/>
-        <HandJointEntity joint_name="middle-finger-phalanx-intermediate" hand_type={props.hand_type}/>
-        <HandJointEntity joint_name="middle-finger-phalanx-distal" hand_type={props.hand_type}/>
-        <HandJointEntity joint_name="middle-finger-tip" hand_type={props.hand_type}/>
+        ...hand_joint_entity( "middle-finger-metacarpal" , hand_type ),
+        ...hand_joint_entity( "middle-finger-phalanx-proximal" , hand_type ),
+        ...hand_joint_entity( "middle-finger-phalanx-intermediate" , hand_type ),
+        ...hand_joint_entity( "middle-finger-phalanx-distal" , hand_type ),
+        ...hand_joint_entity( "middle-finger-tip" , hand_type ),
 
-        <HandJointEntity joint_name="ring-finger-metacarpal" hand_type={props.hand_type}/>
-        <HandJointEntity joint_name="ring-finger-phalanx-proximal" hand_type={props.hand_type}/>
-        <HandJointEntity joint_name="ring-finger-phalanx-intermediate" hand_type={props.hand_type}/>
-        <HandJointEntity joint_name="ring-finger-phalanx-distal" hand_type={props.hand_type}/>
-        <HandJointEntity joint_name="ring-finger-tip" hand_type={props.hand_type}/>
+        ...hand_joint_entity( "ring-finger-metacarpal" , hand_type ),
+        ...hand_joint_entity( "ring-finger-phalanx-proximal" , hand_type ),
+        ...hand_joint_entity( "ring-finger-phalanx-intermediate" , hand_type ),
+        ...hand_joint_entity( "ring-finger-phalanx-distal" , hand_type ),
+        ...hand_joint_entity( "ring-finger-tip" , hand_type ),
 
-        <HandJointEntity joint_name="pinky-finger-metacarpal" hand_type={props.hand_type}/>
-        <HandJointEntity joint_name="pinky-finger-phalanx-proximal" hand_type={props.hand_type}/>
-        <HandJointEntity joint_name="pinky-finger-phalanx-intermediate" hand_type={props.hand_type}/>
-        <HandJointEntity joint_name="pinky-finger-phalanx-distal" hand_type={props.hand_type}/>
-        <HandJointEntity joint_name="pinky-finger-tip" hand_type={props.hand_type}/>
-    </div>
-);
+        ...hand_joint_entity( "pinky-finger-metacarpal" , hand_type ),
+        ...hand_joint_entity( "pinky-finger-phalanx-proximal" , hand_type ),
+        ...hand_joint_entity( "pinky-finger-phalanx-intermediate" , hand_type ),
+        ...hand_joint_entity( "pinky-finger-phalanx-distal" , hand_type ),
+        ...hand_joint_entity( "pinky-finger-tip" , hand_type ),
+    ] as Entity[];
+}
 
-export const LeftHandEntity = (<HandEntity hand_type={HandType.Left} />);
-export const RightHandEntity = (<HandEntity hand_type={HandType.Right} />);
+export const LeftHandEntity = hand_entity(HandType.Left);
+export const RightHandEntity = hand_entity(HandType.Right);

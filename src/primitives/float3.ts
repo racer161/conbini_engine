@@ -7,10 +7,12 @@ export class float3{
 
     value: Float32Array | [number, number, number]
 
-    constructor(x: number, y: number, z: number) {
-        this.value = [x,y,z];
+    constructor(array: Float32Array | [number, number, number]) {
+        this.value = array;
     }
 
+    public static zero : float3 = new float3([0,0,0]);
+    public static one : float3 = new float3([1,1,1]);
 
     distance(b : [number, number, number]) : number
     {

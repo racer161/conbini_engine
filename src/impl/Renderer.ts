@@ -21,7 +21,7 @@ export interface MaterialComponent{
 
 export interface RenderEntity extends TransformComponent, GeometryComponent, MaterialComponent{}
 
-
+ 
 export class Render<T extends RenderEntity> extends System<T> 
 {
     name: string = "Render";
@@ -69,8 +69,6 @@ export class Render<T extends RenderEntity> extends System<T>
 
         //init entities into the threejs scene
         this.scene.entities_x_system.get(this.name).forEach((e : RenderEntity) => {
-
-            e.mesh = new THREE.Mesh(e.geometry, e.material);
 
 
             e.mesh.matrixAutoUpdate = false;
