@@ -11,6 +11,7 @@ import { Scene } from "../core/Scene";
 export interface RigidBodyComponent{
     rigidbody_type : RigidBodyType;
     rigidbody : RigidBody;
+    gravity_coefficient : number;
 }
 
 export interface CCDComponent{
@@ -83,6 +84,7 @@ function init_rigidbody(e : PhysicsEntity & Entity & Static & MassComponent & CC
 {
     // Create a dynamic rigid-body.
     let rigidBodyDesc = new RigidBodyDesc(e.rigidbody_type);
+    if(e.gravity_coefficient) rigidBodyDesc.setGravityScale(e.gravity_coefficient);
 
     if(e.rigidbody_ccd) rigidBodyDesc.setCcdEnabled(true);
 
@@ -120,7 +122,7 @@ function init_joints (e : PhysicsEntity & Entity & Static & MassComponent & Join
     
     let joint = world.createImpulseJoint(params, e.rigidbody, e.joined_entity.rigidbody);
 
-    (joint as PrismaticImpulseJoint).configureMotorPosition(0.01, 1, 0);
+    (joint as PrismaticImpulseJoint).configureMotorPosition(0, 1, 0);
 }
 
 //https://www.rapier.rs/docs/user_guides/javascript/colliders#collision-groups-and-solver-groups

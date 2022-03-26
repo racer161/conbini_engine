@@ -33,7 +33,7 @@ function sandbox(width : number, height : number): Entity[]
 //TODO: Make a better Enity Array Class with convenient methods
 var scene_array : Entity[] = [
   ball,
-  ...sandbox(2, 1),
+  ...sandbox(2, 0.5),
   ...LeftHandEntity,
   ...RightHandEntity
 ];
