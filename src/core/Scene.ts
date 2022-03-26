@@ -1,7 +1,7 @@
 import { uniqueId } from "lodash";
 import { WebGLBufferRenderer, XRFrame } from "three";
-import { Entity } from "../core/Entity";
-import { System } from "../core/System";
+import { Entity } from "./Entity";
+import { System } from "./System";
 import { HandInput } from "../impl/HandInput";
 import { Physics } from "../impl/Physics";
 import { RenderEntity, Render } from "../impl/Renderer";

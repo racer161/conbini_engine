@@ -19,6 +19,7 @@ export function cube(width : number, height : number=width, depth : number = wid
         rigidbody : undefined,
         transform : transform ? transform : new Transform(),
         collider : ColliderDesc.cuboid(width/2, height/2, depth/2),
+        collision_group : undefined,
         mesh : new Mesh(geometry, material),
         geometry : geometry,
         material: material

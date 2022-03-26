@@ -52,19 +52,21 @@ export class HandInput<T extends Entity & JointEntity> extends System<T>{
     }
 
     async update(e: T, time: number, frame?: XRFrame): Promise<void> {
-        if(typeof(e.joint_space) === "boolean") return;
-        if(!frame) return;
+        if(!e.joint_space) return;
+        //if(!frame) return;
         const transform_snapshot = frame.getJointPose(e.joint_space, this.xr_manager.getReferenceSpace());
         //if the transform is not valid, don't update it
 
-        e.joined_entity.rigidbody.wakeUp();
+        
         if(transform_snapshot){
             //e.transform.setFromFloat32Array(transform_snapshot.transform.matrix);
             const pos = new Vector3(transform_snapshot.transform.position.x, transform_snapshot.transform.position.y, transform_snapshot.transform.position.z);
             e.rigidbody.setNextKinematicTranslation(pos);
-            const rot = new Quaternion(transform_snapshot.transform.orientation.x, transform_snapshot.transform.orientation.y, transform_snapshot.transform.orientation.z, transform_snapshot.transform.orientation.w);
-            e.rigidbody.setNextKinematicRotation(rot);
+            //const rot = new Quaternion(transform_snapshot.transform.orientation.x, transform_snapshot.transform.orientation.y, transform_snapshot.transform.orientation.z, transform_snapshot.transform.orientation.w);
+            //e.rigidbody.setNextKinematicRotation(rot);
+            e.joined_entity.rigidbody.wakeUp();
         } 
+        //e.joined_entity.rigidbody.wakeUp();
     }
     
     setHands(){

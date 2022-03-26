@@ -6,7 +6,7 @@ import { Entity, Static } from "../core/Entity";
 import { keys } from "ts-transformer-keys";
 import { float3 } from "../primitives";
 import { Quaternion } from "../primitives/Quaternion";
-import { Scene } from "../engine/Scene";
+import { Scene } from "../core/Scene";
 
 export interface RigidBodyComponent{
     rigidbody_type : RigidBodyType;
@@ -18,7 +18,8 @@ export interface CCDComponent{
 }
 
 export interface ColliderComponent{
-    collider? : ColliderDesc;
+    collider : ColliderDesc;
+    collision_group : number;
 }
 
 export interface MassComponent{
@@ -98,12 +99,16 @@ function init_rigidbody(e : PhysicsEntity & Entity & Static & MassComponent & CC
     
 }
 
+//Default collision mask is a part of group 0 but collides with everything else
+const default_collision_mask = getCollisionMask( 0b1, 0b1111_1111_1111_1111);
+
 function init_collider(e : PhysicsEntity & Entity & Static & MassComponent & ColliderComponent, world : World)
 {
-    //let group1 = 0x00010001;
 
     let collider = world.createCollider(e.collider, e.rigidbody.handle);
-    //collider.setCollisionGroups(group1);
+
+    //if the entity explicitly set a collision group use it otherwise use the default
+    collider.setCollisionGroups(e.collision_group ? e.collision_group : default_collision_mask);
 }
 
 function init_joints (e : PhysicsEntity & Entity & Static & MassComponent & JointComponent, world : World, scene : Scene)
@@ -111,11 +116,23 @@ function init_joints (e : PhysicsEntity & Entity & Static & MassComponent & Join
     let axis = { x: 0.0, y: 1.0, z: 0.0 };
     let params = JointData.prismatic({ x: 0.0, y: 0.0, z: 0.0 }, { x: 0.0, y: 0.0, z: 0.0 }, axis);
     params.limitsEnabled = true;
-    params.limits = [-0.001, 0.001];
-    //params.jointType = e.joint_type;
+    params.limits = [-0.1, 0.1];
     
     let joint = world.createImpulseJoint(params, e.rigidbody, e.joined_entity.rigidbody);
 
-    (joint as PrismaticImpulseJoint).configureMotorPosition(0, 0.5, 0.5);
-    //(joint as PrismaticImpulseJoint).configureMotorModel(MotorModel.AccelerationBased);
+    (joint as PrismaticImpulseJoint).configureMotorPosition(0.01, 1, 0);
+}
+
+//https://www.rapier.rs/docs/user_guides/javascript/colliders#collision-groups-and-solver-groups
+//The membership and filter are both 16-bit bit masks packed into a single 32-bits value. The 16 left-most bits contain the memberships whereas the 16 right-most bits contain the filter.
+//The membership is a bit mask where each bit represents a collision group. A 1 means the entity is a member of the group.
+//The filter is a bit mask where each bit represents a collision group. A 1 means the entity will collide with the group.
+//eg. getCollisionMask(0b0000_0000_0000_1101, 0b0000_0000_0000_0000) = 0b0000_0000_0000_1101_0000_0000_0000_0000
+export function getCollisionMask(membership : number, filter : number) : number
+{
+    return (membership << 16) | filter;
+}
+
+function dec2bin(dec : number) {
+    return (dec >>> 0).toString(2);
 }
