@@ -1,6 +1,5 @@
 import { ColliderDesc, RigidBodyType } from "@dimforge/rapier3d";
 import * as THREE from "three";
-import { h } from "../src/engine/JSX";
 import { Scene } from "../src/engine/Scene";
 import { float3 } from "../src/primitives";
 import { LeftHandEntity, RightHandEntity } from "../src/impl/Hand";

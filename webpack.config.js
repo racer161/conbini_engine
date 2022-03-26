@@ -3,7 +3,7 @@ const keysTransformer = require('ts-transformer-keys/transformer').default;
 
 module.exports = {
     mode: 'development',
-    entry: './example/index.tsx',
+    entry: './example/index.ts',
     module: {
         rules: [
         {
@@ -33,7 +33,7 @@ module.exports = {
         asyncWebAssembly: true,
     },
     resolve: {
-        extensions: ['.tsx', '.ts', '.js'],
+        extensions: ['.ts', '.js'],
     },
     output: {
         filename: 'index.js',
