@@ -6,21 +6,24 @@ module.exports = {
     entry: './example/index.ts',
     module: {
         rules: [
-        {
-            test: /\.tsx?$/,
-            exclude: /node_modules/,
-            use: {
-                loader: 'ts-loader',
-                options: {
-                    // make sure not to set `transpileOnly: true` here, otherwise it will not work
-                    getCustomTransformers: program => ({
-                        before: [
-                            keysTransformer(program)
-                        ]
-                    })
-                }
-            }
-        },
+            {
+                test: /\.tsx?$/,
+                exclude: /node_modules/,
+                use: {
+                    loader: 'ts-loader',
+                    options: {
+                        // make sure not to set `transpileOnly: true` here, otherwise it will not work
+                        getCustomTransformers: program => ({
+                            before: [
+                                keysTransformer(program)
+                            ]
+                        })
+                    }
+                },
+                
+                
+            },
+
         ],
     },
     devtool: 'inline-source-map',

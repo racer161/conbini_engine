@@ -1,6 +1,6 @@
 import { ColliderDesc, RigidBodyDesc } from "@dimforge/rapier3d";
 import * as THREE from "three";
-import { BufferGeometry, Material, Matrix4, Mesh } from "three";
+import { ACESFilmicToneMapping, BufferGeometry, DirectionalLight, Material, Matrix4, Mesh, PMREMGenerator, sRGBEncoding, Texture } from "three";
 import { VRButton } from "three/examples/jsm/webxr/VRButton";
 import { keys } from "ts-transformer-keys";
 import { EditorControls } from "../../example/EditorControls";
@@ -8,6 +8,8 @@ import RapierPhysics from "../../include/RapierPhysics";
 import { Entity } from "../core/Entity";
 import { System } from "../core/System"
 import { TransformComponent } from "../primitives/Transform";
+
+import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
 
 
 export interface GeometryComponent {
@@ -19,7 +21,11 @@ export interface MaterialComponent{
     material: Material
 }
 
-export interface RenderEntity extends TransformComponent, GeometryComponent, MaterialComponent{}
+export interface MeshComponent{
+    mesh: Mesh
+}
+
+export interface RenderEntity extends TransformComponent, MeshComponent{}
 
  
 export class Render<T extends RenderEntity> extends System<T> 
@@ -39,7 +45,16 @@ export class Render<T extends RenderEntity> extends System<T>
 
     //TODO: make this respect the entities created and not just harcode this scene
     async init(): Promise<void> {
-        this.renderer = new THREE.WebGLRenderer( { antialias: true } );
+        const renderer = new THREE.WebGLRenderer( { antialias: true } );
+        renderer.setPixelRatio( window.devicePixelRatio );
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.outputEncoding = sRGBEncoding;
+        renderer.physicallyCorrectLights = true;
+        renderer.toneMapping = ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 3;
+
+        this.renderer = renderer;
+
         this.three_scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.0001, 100000 );
 
@@ -48,6 +63,10 @@ export class Render<T extends RenderEntity> extends System<T>
             self.onWindowResize();
         }, false );
         document.body.appendChild( VRButton.createButton( this.renderer ) );
+
+        const pmremGenerator = new PMREMGenerator(renderer);
+        pmremGenerator.compileEquirectangularShader();
+
 
         this.renderer.xr.enabled = true;
 
@@ -59,23 +78,41 @@ export class Render<T extends RenderEntity> extends System<T>
         this.controls.lookSpeed = 0.125;
         this.controls.lookVertical = true;
 
-        const light = new THREE.AmbientLight( 0x404040 ); // soft white light
-        this.three_scene.add( light );
+        const light = new THREE.AmbientLight(0x404040); // soft white light
+        this.three_scene.add(light);
 
-        this.three_scene.background = new THREE.Color( 0xbfd1e5 );
+        const directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
+        directionalLight.position.set( 0, 1, 0 );
+        this.three_scene.add( directionalLight );
 
         this.camera.position.set(0, 2, 5);
+
+        /*
+        await new Promise((resolve, reject) => {
+            new RGBELoader()
+                .load('./environment.hdr', (texture) => {
+                    const envMap = pmremGenerator.fromEquirectangular(texture).texture;
+                    texture.dispose();
+                    pmremGenerator.dispose();
+                    resolve(envMap);
+                }, undefined, reject );
+        }).then((environment : Texture) => {
+            this.three_scene.environment = environment;
+            this.three_scene.background = environment;
+            renderer.render( this.three_scene, this.camera );
+        });*/
+
+        
 
 
         //init entities into the threejs scene
         this.scene.entities_x_system.get(this.name).forEach((e : RenderEntity) => {
-
-
             e.mesh.matrixAutoUpdate = false;
-            this.three_scene.add(e.mesh);
-
+            
             e.mesh.matrix = e.transform.asMatrix4();
             e.mesh.updateMatrixWorld(true);
+
+            this.three_scene.add(e.mesh);
         })
 
         this.renderer.setSize( window.innerWidth, window.innerHeight );

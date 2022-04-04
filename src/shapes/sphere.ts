@@ -1,5 +1,5 @@
 import { ColliderDesc, RigidBodyType } from "@dimforge/rapier3d";
-import { ColorRepresentation, DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry } from "three";
+import { ColorRepresentation, DoubleSide, FrontSide, Mesh, MeshBasicMaterial, MeshPhysicalMaterial, SphereGeometry } from "three";
 import { Entity } from "../core/Entity";
 import { CCDComponent, ColliderComponent, MassComponent, PhysicsEntity } from "../impl/Physics";
 import { RenderEntity } from "../impl/Renderer";
@@ -10,7 +10,7 @@ import { Transform } from "../primitives/Transform";
 export function sphere(radius : number, color : ColorRepresentation = 0xffffff, segments : number = 8, rigidbody_type : RigidBodyType, transform: Transform ) : Entity & RenderEntity & PhysicsEntity & ColliderComponent & CCDComponent & MassComponent
 {
     const geometry = new SphereGeometry(radius, segments, segments);
-    const material = new MeshBasicMaterial( { color: color, side: DoubleSide } );
+    const material = new MeshPhysicalMaterial( { color: color, side: FrontSide } );
 
     return {
         id: "",
@@ -22,8 +22,6 @@ export function sphere(radius : number, color : ColorRepresentation = 0xffffff, 
         collision_group : undefined,
         rigidbody_ccd : true,
         mesh : new Mesh(geometry, material),
-        geometry : geometry,
-        material: material,
         mass : 1
     };
 

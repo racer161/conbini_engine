@@ -33,14 +33,12 @@ function hand_joint_entity(joint_name : string, hand_type: HandType) : Entity[]
         id: undefined,
         transform: Transform.fromPositionRotationScale(new float3([100,100,100]), Quaternion.identity, float3.one),
         mesh: new Mesh( geometry, material ),
-        geometry: geometry,
         rigidbody: undefined,
         gravity_coefficient: 0,
         rigidbody_type: RigidBodyType.Dynamic,
         rigidbody_ccd: true,
         collider: ColliderDesc.ball(.01).setFriction(0.5),
         collision_group: getCollisionMask( 0b01, 0b1),
-        material: material,
         mass: 0.1 
     };
 

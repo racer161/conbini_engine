@@ -84,11 +84,11 @@ export class EditorControls {
 				this.moveRight = true;
 				break;
 
-			case 'KeyR':
+			case 'Space':
 				this.moveUp = true;
 				break;
 
-			case 'KeyF':
+			case 'LeftShift':
 				this.moveDown = true;
 				break;
 
@@ -121,11 +121,11 @@ export class EditorControls {
 				this.moveRight = false;
 				break;
 
-			case 'KeyR':
+			case 'Space':
 				this.moveUp = false;
 				break;
 
-			case 'KeyF':
+			case 'LeftShift':
 				this.moveDown = false;
 				break;
 

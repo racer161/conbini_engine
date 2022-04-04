@@ -1,5 +1,5 @@
 import { ColliderDesc, RigidBody, RigidBodyType } from "@dimforge/rapier3d";
-import { BoxGeometry, ColorRepresentation, DoubleSide, Mesh, MeshBasicMaterial } from "three";
+import { BoxGeometry, ColorRepresentation, DoubleSide, FrontSide, Mesh, MeshBasicMaterial, MeshPhysicalMaterial, Side } from "three";
 import { Entity } from "../core/Entity";
 import { CCDComponent, ColliderComponent, PhysicsEntity, RigidBodyComponent } from "../impl/Physics";
 import { RenderEntity } from "../impl/Renderer";
@@ -11,7 +11,7 @@ export function cube(width : number, height : number=width, depth : number = wid
 {
 
     const geometry = new BoxGeometry( width, height, depth );
-    const material = new MeshBasicMaterial( { color: color, side: DoubleSide } );
+    const material = new MeshPhysicalMaterial( { color: color, side: FrontSide } );
 
     return {
         id: undefined,
@@ -22,9 +22,7 @@ export function cube(width : number, height : number=width, depth : number = wid
         collider : ColliderDesc.cuboid(width/2, height/2, depth/2),
         collision_group : undefined,
         rigidbody_ccd : true,
-        mesh : new Mesh(geometry, material),
-        geometry : geometry,
-        material: material
+        mesh : new Mesh(geometry, material)
     };
 
 }
