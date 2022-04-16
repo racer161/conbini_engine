@@ -3,7 +3,7 @@ const keysTransformer = require('ts-transformer-keys/transformer').default;
 
 module.exports = {
     mode: 'development',
-    entry: './example/index.ts',
+    entry: './src/index.ts',
     module: {
         rules: [
             {

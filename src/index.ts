@@ -1,13 +1,13 @@
 import { ColliderDesc, RigidBodyType } from "@dimforge/rapier3d";
 import * as THREE from "three";
-import { Scene } from "../src/core/Scene";
-import { float3 } from "../src/primitives";
-import { LeftHandEntity, RightHandEntity } from "../src/impl/Hand";
-import { Transform } from "../src/primitives/Transform";
-import { Quaternion } from "../src/primitives/Quaternion";
-import { Entity } from "../src/core/Entity";
-import { sphere } from "../src/shapes/sphere";
-import { cube } from "../src/shapes/cube";
+import { Scene } from "./core/Scene";
+import { float3 } from "./primitives";
+import { LeftHandEntity, RightHandEntity } from "./impl/HandEntity";
+import { Transform } from "./primitives/Transform";
+import { Quaternion } from "./primitives/Quaternion";
+import { Entity } from "./core/Entity";
+import { sphere } from "./shapes/sphere";
+import { cube } from "./shapes/cube";
 
 
 function sandbox(width : number, height : number): Entity[]
@@ -37,10 +37,10 @@ async function main()
 {
   const ball = sphere(0.05, 0x0000ff,16, RigidBodyType.Dynamic, Transform.fromPositionRotationScale(new float3([0, 5, 0]), Quaternion.identity, float3.one));
 
+  const helmet = await Entity.from_gltf_loader("DamagedHelmet.glb");
+  helmet.transform.setTranslation(new float3([0, 5, 0]));
+
   ball.transform.setTranslation(new float3([0,5,0]));
-
-  const helmet = await Entity.from_glb_url("DamagedHelmet.glb", Transform.fromPositionRotationScale(new float3([0, 5, 0]), Quaternion.fromEulerXYZ(-90,0,0), new float3([0.1,0.1,0.1])));
-
 
   //TODO: Make a better Enity Array Class with convenient methods
   var scene_array : Entity[] = [
@@ -48,22 +48,10 @@ async function main()
     ...sandbox(2, 0.5),
     ...LeftHandEntity,
     ...RightHandEntity,
-    helmet,
+    helmet
   ];
 
   const scene = new Scene(scene_array);
 }
 
 main();
-
-
-
-//TODO:
-// - Find a scene from turbosquid
-// - split it into different GLTF files for each model
-// - decide on a strategy for VR UI
-// - Build a GLTF selection UI in VR
-// - Make a tool for translation, rotation, scaling
-// - Make a tool for collider creation
-// - Make a tool for rigid body creation
-// - Create the option to export an item to conbiniverse CDN via your conbiniverse account

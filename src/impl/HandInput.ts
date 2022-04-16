@@ -5,7 +5,7 @@ import { TransformComponent } from "../primitives/Transform";
 import { Entity } from "../core/Entity";
 import { keys } from "ts-transformer-keys";
 
-import { HandComponent, HandType } from "./Hand";
+import { HandComponent, HandType } from "./HandEntity";
 import { XRInputSource, XRSession, WebXRManager, XRFrame, XRHandJoint, XRJointPose, XRHand, XRReferenceSpace, Vector3, Quaternion } from "three";
 import { XRSpace } from "webxr";
 import { float3 } from "../primitives";
@@ -53,20 +53,17 @@ export class HandInput<T extends Entity & JointEntity> extends System<T>{
 
     async update(e: T, time: number, frame?: XRFrame): Promise<void> {
         if(!e.joint_space) return;
-        //if(!frame) return;
         const transform_snapshot = frame.getJointPose(e.joint_space, this.xr_manager.getReferenceSpace());
-        //if the transform is not valid, don't update it
-
         
+
+        //if the transform is not valid, don't update it
         if(transform_snapshot){
             //e.transform.setFromFloat32Array(transform_snapshot.transform.matrix);
             const pos = new Vector3(transform_snapshot.transform.position.x, transform_snapshot.transform.position.y, transform_snapshot.transform.position.z);
             e.rigidbody.setNextKinematicTranslation(pos);
-            //const rot = new Quaternion(transform_snapshot.transform.orientation.x, transform_snapshot.transform.orientation.y, transform_snapshot.transform.orientation.z, transform_snapshot.transform.orientation.w);
-            //e.rigidbody.setNextKinematicRotation(rot);
             e.joined_entity.rigidbody.wakeUp();
         } 
-        //e.joined_entity.rigidbody.wakeUp();
+        
     }
     
     setHands(){
