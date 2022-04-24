@@ -8,8 +8,8 @@ import { Quaternion } from "./primitives/Quaternion";
 import { Entity } from "./core/Entity";
 import { sphere } from "./shapes/sphere";
 import { cube } from "./shapes/cube";
-import { drawJSXToCanvas } from "./impl/UI";
-
+import { ConbiniUIDocument, drawJSXToCanvas } from "./impl/UI";
+import React from "react";
 
 function sandbox(width : number, height : number): Entity[]
 {
@@ -58,72 +58,46 @@ async function main()
 
 //main();
 
-import React from "react";
 
-export function test_ui(): JSX.Element
+
+export function TestUI(): JSX.Element
 {
-    return(
-      <div className="flex w-full h-full p-8">
-        <div className="flex items-center justify-center w-48 h-48 bg-gray-300 rounded-xl text-gray-600 m-2 filter drop-shadow-lg">
-          <div>Hello Conbini</div>
-        </div>
-        <div className="flex items-center justify-center w-48 h-48 bg-gray-300 rounded-xl text-gray-600 m-2 filter drop-shadow-lg">
-          <div>Hello Conbini</div>
-        </div>
-        <div className="flex items-center justify-center w-48 h-48 bg-gray-300 rounded-xl text-gray-600 m-2 filter drop-shadow-lg">
-          <div>Hello Conbini</div>
-        </div>
-        <div className="flex items-center justify-center w-48 h-48 bg-gray-300 rounded-xl text-gray-600 m-2 filter drop-shadow-lg">
-          <div>Hello Conbini</div>
-        </div>
-        <div className="flex items-center justify-center w-48 h-48 bg-gray-300 rounded-xl text-gray-600 m-2 filter drop-shadow-lg">
-          <div>Hello Conbini</div>
-        </div>
-        <div className="flex items-center justify-center w-48 h-48 bg-gray-300 rounded-xl text-gray-600 m-2 filter drop-shadow-lg">
-          <div>Hello Conbini</div>
-        </div>
+  const [text, setText] = React.useState("Hello Conbini");
+
+  return(
+    <div className="flex w-full h-full p-8 ">
+      <div className="flex items-center justify-center w-48 h-48 bg-gray-300 rounded-xl text-gray-600 m-2 filter drop-shadow-lg hover:bg-blue-500" onClick={() => setText("I'm clicked real good!!")}>
+        <div>{ text}</div>
       </div>
-
-    );
+      <div className="flex items-center justify-center w-48 h-48 bg-gray-300 rounded-xl text-gray-600 m-2 filter drop-shadow-lg">
+        <div>Hello Conbini</div>
+      </div>
+      <div className="flex items-center justify-center w-48 h-48 bg-gray-300 rounded-xl text-gray-600 m-2 filter drop-shadow-lg">
+        <div>Hello Conbini</div>
+      </div>
+      <div className="flex items-center justify-center w-48 h-48 bg-gray-300 rounded-xl text-gray-600 m-2 filter drop-shadow-lg">
+        <div>Hello Conbini</div>
+      </div>
+      <div className="flex items-center justify-center w-48 h-48 bg-gray-300 rounded-xl text-gray-600 m-2 filter drop-shadow-lg">
+        <div>Hello Conbini</div>
+      </div>
+      <div className="flex items-center justify-center w-48 h-48 bg-gray-300 rounded-xl text-gray-600 m-2 filter drop-shadow-lg">
+        <div>Hello Conbini</div>
+      </div>
+    </div>
+  );
 }
 
-function backingScale() {
-  if (window.devicePixelRatio && window.devicePixelRatio > 1) {
-      return window.devicePixelRatio;
-  }
-  return 1;
-}
 
-function scaleCanvasForRetina(canvas : HTMLCanvasElement, width? : number, height? : number) {
-  var scaleFactor = backingScale();
-  canvas.style.width = width + "px";
-  canvas.style.height = height + "px";
 
-  canvas.width = width * scaleFactor;
-  canvas.height = height * scaleFactor;
-}
+
 
 async function ui_test()
 {
-  const canvas = document.createElement("canvas");
-  scaleCanvasForRetina(canvas, 400, 400);
-
-  canvas.addEventListener("mousedown", function(e)
-  {
-      getMousePosition(canvas, e);
-  });
+  const doc = new ConbiniUIDocument(<TestUI/>, 400, 400);
 
 
-  document.body.appendChild(canvas);
-
-  var array = [];
-
-  for(let i = 0; i < 10; i++){
-    array.push(await drawJSXToCanvas(test_ui(), canvas, backingScale()));
-  }
-
-  console.log(array);
-    
+  
 }
 
 //TODO: Get Tailwind working 
@@ -133,10 +107,3 @@ async function ui_test()
 
 ui_test();
 
-function getMousePosition(canvas : HTMLCanvasElement, event : MouseEvent){
-  let rect = canvas.getBoundingClientRect();
-  let x = event.clientX - rect.left;
-  let y = event.clientY - rect.top;
-  console.log("Coordinate x: " + x, 
-              "Coordinate y: " + y);
-}
