@@ -14,7 +14,7 @@ export class Transform extends float4x4
 
         if(array) super(array);
         //init the array to identity matrix
-        else super();        
+        else super();
     }
 
     static fromPositionRotationScale(position? : float3, rotation? : Quaternion, scale? : float3) : Transform
@@ -26,8 +26,6 @@ export class Transform extends float4x4
         if(!position) position = float3.zero;
         if(!rotation) rotation = Quaternion.identity;
         if(!scale) scale = float3.one;
-
-
         
         transform.compose(position, rotation, scale);
         return transform;
@@ -35,7 +33,8 @@ export class Transform extends float4x4
 
     translation() : float3
     {
-        return new float3([this.value[12], this.value[13], this.value[14]]);
+        const scale = this.scale();
+        return new float3([this.value[12]/scale.value[0], this.value[13]/scale.value[1], this.value[14]/scale.value[2]]);
     }
 
     setTranslation(translation : float3) : void

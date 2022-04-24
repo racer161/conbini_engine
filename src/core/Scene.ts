@@ -31,7 +31,9 @@ export class Scene{
         this.system_array.push(new Physics(this));
 
         this.init();
-        console.log(this.entity_array);
+
+        
+        //console.log(this.entity_array);
     }
 
     async init(){

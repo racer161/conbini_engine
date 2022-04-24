@@ -1,4 +1,5 @@
 import { Rotation, RotationOps } from "@dimforge/rapier3d";
+import { float3 } from "./float3";
 import { float4 } from "./float4";
 import { float4x4 } from "./float4x4";
 
@@ -27,10 +28,12 @@ export class Quaternion extends float4
         var z : number;
         var w : number;
 
+		const scale_x = matrix.value[0],scale_y= matrix.value[5], scale_z=matrix.value[10];
+
         const
-			m11 = matrix.value[ 0 ], m12 = matrix.value[ 1 ], m13 = matrix.value[ 2 ], //3
-			m21 = matrix.value[ 4 ], m22 = matrix.value[ 5 ], m23 = matrix.value[ 6 ], //7
-			m31 = matrix.value[ 8 ], m32 = matrix.value[ 9 ], m33 = matrix.value[ 10 ], //11
+			m11 = matrix.value[ 0 ]/scale_x , m12 = matrix.value[ 1 ]/scale_y, m13 = matrix.value[ 2 ]/scale_z, //3
+			m21 = matrix.value[ 4 ]/scale_x, m22 = matrix.value[ 5 ]/scale_y, m23 = matrix.value[ 6 ]/scale_z, //7
+			m31 = matrix.value[ 8 ]/scale_x, m32 = matrix.value[ 9 ]/scale_y, m33 = matrix.value[ 10 ]/scale_z, //11
 
 			trace = m11 + m22 + m33;
  
