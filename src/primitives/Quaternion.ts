@@ -2,6 +2,7 @@ import { Rotation, RotationOps } from "@dimforge/rapier3d";
 import { float3 } from "./float3";
 import { float4 } from "./float4";
 import { float4x4 } from "./float4x4";
+import { Transform } from "./Transform";
 
 export class Quaternion extends float4
 {
@@ -16,66 +17,43 @@ export class Quaternion extends float4
         super([x,y,z,w]);
     }
 
-    asRapier() : Rotation
+    public static fromTransform(transform : Transform) : Quaternion
     {
-        return {x:this.value[0],y:this.value[1],z:this.value[2],w:this.value[3]};
-    }
+		//removes the scale from the transformation matrix then computes the quaternion
+		const scale = transform.scale;
 
-    public static fromTransformationMatrix(matrix : float4x4) : Quaternion
-    {
-        var x : number;
-        var y : number;
-        var z : number;
-        var w : number;
-
-		const scale_x = matrix.value[0],scale_y= matrix.value[5], scale_z=matrix.value[10];
+		const invSX = 1 / scale.x;
+		const invSY = 1 / scale.y;
+		const invSZ = 1 / scale.z;
 
         const
-			m11 = matrix.value[ 0 ]/scale_x , m12 = matrix.value[ 1 ]/scale_y, m13 = matrix.value[ 2 ]/scale_z, //3
-			m21 = matrix.value[ 4 ]/scale_x, m22 = matrix.value[ 5 ]/scale_y, m23 = matrix.value[ 6 ]/scale_z, //7
-			m31 = matrix.value[ 8 ]/scale_x, m32 = matrix.value[ 9 ]/scale_y, m33 = matrix.value[ 10 ]/scale_z, //11
+			m11 = transform.value[ 0 ]* invSX, m12 = transform.value[ 1 ]* invSX, m13 = transform.value[ 2 ]* invSX, //3
+			m21 = transform.value[ 4 ]* invSY, m22 = transform.value[ 5 ]* invSY, m23 = transform.value[ 6 ]* invSY, //7
+			m31 = transform.value[ 8 ]* invSZ, m32 = transform.value[ 9 ]* invSZ, m33 = transform.value[ 10]* invSZ, //11
 
 			trace = m11 + m22 + m33;
  
 		if ( trace > 0 ) {
 
 			const s = 0.5 / Math.sqrt( trace + 1.0 );
-
-			w = 0.25 / s;
-			x = ( m32 - m23 ) * s;
-			y = ( m13 - m31 ) * s;
-			z = ( m21 - m12 ) * s;
+			return new Quaternion(( m32 - m23 ) * s,( m13 - m31 ) * s,( m21 - m12 ) * s, 0.25 / s);
 
 		} else if ( m11 > m22 && m11 > m33 ) {
 
 			const s = 2.0 * Math.sqrt( 1.0 + m11 - m22 - m33 );
-
-			w = ( m32 - m23 ) / s;
-			x = 0.25 * s;
-			y = ( m12 + m21 ) / s;
-			z = ( m13 + m31 ) / s;
+			return new Quaternion( 0.25 * s,( m12 + m21 ) / s,( m13 + m31 ) / s,( m32 - m23 ) / s );
 
 		} else if ( m22 > m33 ) {
 
 			const s = 2.0 * Math.sqrt( 1.0 + m22 - m11 - m33 );
-
-			w = ( m13 - m31 ) / s;
-			x = ( m12 + m21 ) / s;
-			y = 0.25 * s;
-			z = ( m23 + m32 ) / s;
+			return new Quaternion( ( m12 + m21 ) / s, 0.25 * s,( m23 + m32 ) / s,( m13 - m31 ) / s );
 
 		} else {
 
 			const s = 2.0 * Math.sqrt( 1.0 + m33 - m11 - m22 );
-
-			w = ( m21 - m12 ) / s;
-			x = ( m13 + m31 ) / s;
-			y = ( m23 + m32 ) / s;
-			z = 0.25 * s;
+			return new Quaternion( ( m13 + m31 ) / s,( m23 + m32 ) / s, 0.25 * s,( m21 - m12 ) / s );
 
 		}
-
-        return new Quaternion(x,y,z,w);
 
     }
 

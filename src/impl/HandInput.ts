@@ -22,6 +22,7 @@ interface WebXRFrameHaver{
 }
 
 export class HandInput<T extends Entity & JointEntity> extends System<T>{
+    
 
     name: string = "HandInput";
 
@@ -39,14 +40,14 @@ export class HandInput<T extends Entity & JointEntity> extends System<T>{
 
     async init(): Promise<void>
     {
-        const renderer = this.scene.render_system.renderer;
+        const renderer = this.world.render_system.renderer;
         this.xr_manager = renderer.xr as WebXRManager;
         
     }
 
     
     async beforeUpdate(time: number, frame?: XRFrame): Promise<void>{
-        if(!this.session) this.session = this.scene.render_system.renderer.xr.getSession();
+        if(!this.session) this.session = this.world.render_system.renderer.xr.getSession();
         //TODO: detect hand rebinding after session pause
         if(this.session && (!this.rightHand || !this.leftHand)) this.setHands();
     }
@@ -87,13 +88,17 @@ export class HandInput<T extends Entity & JointEntity> extends System<T>{
     {
         console.log(`Setting ${hand_type} joint poses`);
         
-        this.scene.entities_x_system.get(this.name).forEach((e : JointEntity) => {
+        this.world.entities_x_system.get(this.name).forEach((e : JointEntity) => {
             //if the entity is on the same hand as the one we're looking at
             if(e.hand_type === hand_type){
                 //set the joint space pointer to the entities pointer
                 e.joint_space = hand.get(e.joint_name as unknown as XRHandJoint);
             } 
         })
+    }
+
+    onCollision(e: T, other: Entity): void {
+        throw new Error("Method not implemented.");
     }
 
 }

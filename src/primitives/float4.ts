@@ -6,10 +6,10 @@ export class float4 {
         this.value = array;
     }
 
-    x = () => this.value[0];
-    y = () => this.value[1];
-    z = () => this.value[2];
-    w = () => this.value[3];
+    get x() { return this.value[0]; }
+    get y() { return this.value[1]; }
+    get z() { return this.value[2]; }
+    get w() { return this.value[3]; }
 
 
     distance(b : [number, number, number, number]) : number

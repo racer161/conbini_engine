@@ -30,6 +30,7 @@ export interface RenderEntity extends TransformComponent, MeshComponent{}
  
 export class Render<T extends RenderEntity> extends System<T> 
 {
+    
     name: string = "Render";
 
     renderer: THREE.WebGLRenderer;
@@ -87,26 +88,8 @@ export class Render<T extends RenderEntity> extends System<T>
 
         this.camera.position.set(0, 2, 5);
 
-        /*
-        await new Promise((resolve, reject) => {
-            new RGBELoader()
-                .load('./environment.hdr', (texture) => {
-                    const envMap = pmremGenerator.fromEquirectangular(texture).texture;
-                    texture.dispose();
-                    pmremGenerator.dispose();
-                    resolve(envMap);
-                }, undefined, reject );
-        }).then((environment : Texture) => {
-            this.three_scene.environment = environment;
-            this.three_scene.background = environment;
-            renderer.render( this.three_scene, this.camera );
-        });*/
-
-        
-
-
         //init entities into the threejs scene
-        this.scene.entities_x_system.get(this.name).forEach((e : RenderEntity) => {
+        this.world.entities_x_system.get(this.name).forEach((e : RenderEntity) => {
             e.mesh.matrixAutoUpdate = false;
             
             e.mesh.matrix = e.transform.asMatrix4();
@@ -137,6 +120,10 @@ export class Render<T extends RenderEntity> extends System<T>
         e.mesh.matrix = e.transform.asMatrix4();
         e.mesh.updateMatrixWorld(true);
 
+    }
+
+    onCollision(e: T, other: Entity): void {
+        throw new Error("Method not implemented.");
     }
 
 }

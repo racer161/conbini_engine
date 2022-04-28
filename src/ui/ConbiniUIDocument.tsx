@@ -5,6 +5,7 @@ import ReactDOM from 'react-dom/client';
 import * as ReactDOMServer from 'react-dom/server';
 import { tailwind_uri } from './Tailwind';
 import ReactTestUtils from 'react-dom/test-utils'; // ES6
+import { Entity } from '../core/Entity';
 
 //<link href="${tailwind_uri}" rel="stylesheet">
 const render_template = (content: string) => `
@@ -99,7 +100,6 @@ export class ConbiniUIDocument
 
             const clicked_element = document.elementFromPoint(pos.x, pos.y);
             ReactTestUtils.Simulate.click(clicked_element);
-            self.draw();
 
             //TODO: add hover event manually in rasterizeHTML
         });
@@ -110,7 +110,7 @@ export class ConbiniUIDocument
             console.log("mousedown root", { x :  event.clientX, y : event.clientY });
         });
 
-        observer.observe(this.root_element, {characterData: true, childList: true, attributes: false})
+        observer.observe(this.root_element, {characterData: true, childList: true, attributes: true, subtree: true});
     }
 
     async draw()

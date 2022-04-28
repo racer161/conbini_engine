@@ -9,14 +9,20 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.(js|jsx)$/,
-                exclude: /node_modules/,
-                loader: "babel-loader",
-            },
-            {
                 test: /\.(ts|tsx)$/,
                 exclude: /node_modules/,
-                loader: "ts-loader",
+                use: {
+                    loader: "ts-loader",
+                    options: {
+                        // make sure not to set `transpileOnly: true` here, otherwise it will not work
+                        getCustomTransformers: program => ({
+                            before: [
+                                keysTransformer(program)
+                            ]
+                        })
+                    }
+                }
+                
             },
             {
                 test: /\.css$/i,

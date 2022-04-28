@@ -6,7 +6,7 @@ import { HandInput } from "../impl/HandInput";
 import { Physics } from "../impl/Physics";
 import { RenderEntity, Render } from "../impl/Renderer";
 
-export class Scene{
+export class World{
 
     //TODO: eventually break this out into its own class that can manage the entities_x_system map as well
     entity_array : Entity[] = [];
