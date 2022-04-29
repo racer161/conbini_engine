@@ -41,7 +41,9 @@ async function main()
 
   const helmet = await Entity.from_gltf_loader("DamagedHelmet.glb");
   helmet.transform.translation = new float3(0, 5, 0);
-  helmet.transform.scale = new float3(0.01, 0.01, 0.01);
+  helmet.transform.scale = new float3(0.1, 0.1, 0.1);
+
+  console.log(helmet.transform.scale);
 
   ball.transform.translation = new float3(0,5,0);
 

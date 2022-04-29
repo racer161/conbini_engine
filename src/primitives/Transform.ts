@@ -50,6 +50,7 @@ export class Transform extends float4x4
 
     set rotation(rotation : Quaternion)
     {
+
         this.compose(this.translation, rotation, this.scale);
     }
 
@@ -69,11 +70,6 @@ export class Transform extends float4x4
     set scale(scale : float3)
     {
         this.compose(this.translation, this.rotation, scale);
-    }
-
-    asMatrix4() : Matrix4
-    {
-        return new Matrix4().fromArray(this.value);
     }
 
     compose(position : float3, rotation : Quaternion, scale : float3) : void
@@ -107,11 +103,6 @@ export class Transform extends float4x4
 		this.value[ 14 ] = position.z;
 		this.value[ 15 ] = 1;
 
-    }
-
-    setFromFloat32Array(array : Float32Array )
-    {
-        this.value = array;
     }
 
     determinant() : number

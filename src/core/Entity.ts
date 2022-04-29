@@ -71,7 +71,7 @@ export namespace Entity
             transform : Transform.fromPositionRotationScale(
                 new float3(three_object.position.x,three_object.position.y,three_object.position.z ), //translation
                 Quaternion.fromEulerXYZ(three_object.rotation.x, three_object.rotation.y, three_object.rotation.z), //rotation
-                new float3(three_object.scale.x, three_object.scale.y, three_object.scale.z)),//scale
+                new float3(three_object.scale.x, three_object.scale.y, three_object.scale.z)),// 
             mesh : mesh,
             rigidbody : undefined,
             rigidBodyDesc : rigidbodyDesc,

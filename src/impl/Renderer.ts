@@ -91,11 +91,10 @@ export class Render<T extends RenderEntity> extends System<T>
         //init entities into the threejs scene
         this.world.entities_x_system.get(this.name).forEach((e : RenderEntity) => {
             e.mesh.matrixAutoUpdate = false;
-            
-            e.mesh.matrix = e.transform.asMatrix4();
-            e.mesh.updateMatrixWorld(true);
+            e.mesh.matrix.fromArray(e.transform.value);
 
             this.three_scene.add(e.mesh);
+            this.three_scene.updateMatrixWorld(true);
         })
 
         this.renderer.setSize( window.innerWidth, window.innerHeight );
@@ -113,13 +112,11 @@ export class Render<T extends RenderEntity> extends System<T>
         this.controls.update( this.clock.getDelta() );
 
         this.renderer.render( this.three_scene, this.camera );
+        this.three_scene.updateMatrixWorld(true);
     }
 
-    async update(e: T): Promise<void> {
-
-        e.mesh.matrix = e.transform.asMatrix4();
-        e.mesh.updateMatrixWorld(true);
-
+    async update(e: T & {name : string }): Promise<void> {
+        e.mesh.matrix.fromArray(e.transform.value);
     }
 
     onCollision(e: T, other: Entity): void {

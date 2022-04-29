@@ -51,6 +51,9 @@ export class Physics<T extends Entity & PhysicsEntity> extends System<T>{
             e.rigidbody = this.physics.world.createRigidBody(e.rigidBodyDesc);
             if(e.collider) this.physics.world.createCollider(e.collider, e.rigidbody.handle);
 
+            //TODO: rescale collider after scale change
+            //e.rigidbody.collider.
+
         })
 
         //Separate joint pass because the rigidbodies don't have a handle before they are initialized above
@@ -80,7 +83,7 @@ export class Physics<T extends Entity & PhysicsEntity> extends System<T>{
     async update(e: T & Static): Promise<void> {
         const translation = e.rigidbody.translation();
         const rotation = e.rigidbody.rotation();
-        e.transform.compose(new float3(translation.x, translation.y, translation.z), Quaternion.fromRapier(rotation), float3.one);
+        e.transform.compose(new float3(translation.x, translation.y, translation.z), Quaternion.fromRapier(rotation), e.transform.scale);
 
     }
 
