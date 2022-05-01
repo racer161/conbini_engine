@@ -1,6 +1,6 @@
 import { ColliderDesc, RigidBodyDesc, TempContactManifold } from "@dimforge/rapier3d";
 import * as THREE from "three";
-import { ACESFilmicToneMapping, Mesh, PMREMGenerator, sRGBEncoding } from "three";
+import { ACESFilmicToneMapping, Mesh, PMREMGenerator, sRGBEncoding, WebXRManager } from "three";
 import { VRButton } from "three/examples/jsm/webxr/VRButton";
 import { keys } from "ts-transformer-keys";
 import { EditorControls } from "../../example/EditorControls";

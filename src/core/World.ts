@@ -65,7 +65,10 @@ export class World{
             if(self.current_frame_is_processing) return;
             //TODO: detect if a new reference space is available and update the renderer
             //rather than updating it every frame
-            else self.update(time, frame, render_system.renderer.xr.getReferenceSpace());
+            else
+            {
+                self.update(time, frame);
+            } 
         });
 
     }
@@ -83,13 +86,13 @@ export class World{
         }
     }
 
-    private async update(time: number, frame?: XRFrame, reference_space?: XRReferenceSpace){
+    private async update(time: number, frame?: XRFrame){
         this.current_frame_is_processing = true;
 
         //right now this schedules all updates synchronously
         //but eventually these should be moved to separate threads and scheduled asynchronously
         for(let system of this.system_array){
-            await system.run_update(time, frame, reference_space);
+            await system.run_update(time, frame);
         }
 
         this.current_frame_is_processing = false;

@@ -36,9 +36,9 @@ export abstract class System<T>
     afterUpdate?(time: number, frame?: XRFrame): Promise<void>;
 
     //called for each entity in the system each frame
-    abstract update(e: T, time: number, frame?: XRFrame, reference_space?: XRReferenceSpace) : Promise<void>;
+    abstract update(e: T, time: number, frame?: XRFrame) : Promise<void>;
 
-    async run_update(time: number, frame?: XRFrame, reference_space?: XRReferenceSpace ) : Promise<void>
+    async run_update(time: number, frame?: XRFrame ) : Promise<void>
     {
         //allow the system to do preprocessing
         if(this.beforeUpdate) await this.beforeUpdate(time, frame);
@@ -50,7 +50,7 @@ export abstract class System<T>
         //the world just needs to check if all write-to resources are not being written to by other systems
         await Promise.all(
             [...this.entities].map(async e => {
-                return this.update(e, time, frame, reference_space);
+                return this.update(e, time, frame);
             }
         ));
     }
