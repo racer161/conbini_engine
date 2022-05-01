@@ -1,4 +1,4 @@
-import { ColliderDesc, RigidBodyDesc } from "@dimforge/rapier3d";
+import { ColliderDesc, RigidBodyDesc, TempContactManifold } from "@dimforge/rapier3d";
 import * as THREE from "three";
 import { ACESFilmicToneMapping, Mesh, PMREMGenerator, sRGBEncoding } from "three";
 import { VRButton } from "three/examples/jsm/webxr/VRButton";
@@ -10,6 +10,8 @@ import { System } from "../core/System"
 import { TransformComponent } from "../primitives/Transform";
 
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
+import { CollisionState } from "./Collision";
+import { PhysicsEntity } from "./Physics";
 
 export interface MeshComponent{
     mesh: Mesh
@@ -31,7 +33,6 @@ export class Render<T extends RenderEntity> extends System<T>
 
     archetype: string[] = keys<RenderEntity>();
 
-    init_priority: number = 0;
     run_priority: number = 1000000000;
 
     //TODO: make this respect the entities created and not just harcode this scene
@@ -108,8 +109,6 @@ export class Render<T extends RenderEntity> extends System<T>
         e.mesh.matrix.fromArray(e.transform.value);
     }
 
-    onCollision(e: T, other: Entity): void {
-        throw new Error("Method not implemented.");
-    }
+    
 
 }

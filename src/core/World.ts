@@ -22,7 +22,7 @@ export class World{
     async init(starting_entities : Entity[]){
 
         //INIT_SYSTEM
-        for(let system of this.system_array.sort((a, b) => a.init_priority - b.init_priority)){
+        for(let system of this.system_array){
             console.log(`Initializing ${system.name}`);
             await system.init_system();
         }
@@ -40,7 +40,9 @@ export class World{
         for(let pass = 1; pass <= max_passes; pass++){
             console.log(`Initializing entities pass ${pass}`);
             //sort by init priority
-            for(let system of this.system_array.sort((a, b) => a.init_priority - b.init_priority)){
+            //TODO: this implicilty uses the order in which the Systems are listed in the initial array as the init_priority
+            //this needs to be saved for later when we support adding entities after the engine has started
+            for(let system of this.system_array){
                 //this system has already been through all its passes so skip it
                 if(pass > system.init_entity_passes || !system.init_entity) continue;
                 //otherwise process the init entity again
@@ -73,24 +75,18 @@ export class World{
         //add it to the systems
         for(let system of this.system_array){
             if(system.archetype.every(a => e.hasOwnProperty(a))){
-                system.entities.push(e);
+                system.entities.add(e);
             }
         }
     }
 
     private async update(time: number, frame?: XRFrame){
         this.current_frame_is_processing = true;
-        for(let system of this.system_array){
-            //allow the system to do preprocessing
-            await system.beforeUpdate(time, frame);
 
-            //for each entity process the update 
-            //this has to be handled at the top world level to enable parallism?
-            await Promise.all(
-                system.entities.map(async e => {
-                    return system.update(e, time, frame);
-                }
-            ));
+        //right now this schedules all updates synchronously
+        //but eventually these should be moved to separate threads and scheduled asynchronously
+        for(let system of this.system_array){
+            await system.run_update(time, frame);
         }
 
         this.current_frame_is_processing = false;

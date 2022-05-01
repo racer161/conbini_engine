@@ -38,14 +38,10 @@ export class Physics<T extends PhysicsEntity> extends System<T>{
 
     physics: RapierPhysics;
 
-    init_priority: number = 1;
     init_entity_passes = 2;
     run_priority: number = 1;
 
     event_queue: EventQueue;
-
-    //
-    collision_map: Map<[number,number],CollisionState>;
 
     async init_system(): Promise<void>
     {
@@ -116,9 +112,3 @@ function dec2bin(dec : number) {
     return (dec >>> 0).toString(2);
 }
 
-enum CollisionState
-{
-    CollisionFirstFrame = 0,
-    CollisionContinues = 1,
-    CollisionLastFrame = 2
-}

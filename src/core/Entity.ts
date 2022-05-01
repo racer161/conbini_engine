@@ -10,6 +10,7 @@ import { Transform } from "../primitives/Transform";
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { float3 } from "../primitives";
 import { Quaternion } from "../primitives/Quaternion";
+import { CollisionSubscriberComponent } from "../impl/Collision";
 
 export interface Entity{
     children?: Entity[];
@@ -32,7 +33,7 @@ const io = new WebIO({credentials: 'include'});
 //A class for reading in and managing a glTF document.
 export namespace Entity
 {
-    export async function from_gltf_loader(url : string, scale : float3) : Promise<Entity & RenderEntity & PhysicsEntity & ColliderComponent>
+    export async function from_gltf_loader(url : string, scale : float3, listen_to : PhysicsEntity) : Promise<Entity & RenderEntity & PhysicsEntity & ColliderComponent>
     {
         return new Promise<Entity & RenderEntity & PhysicsEntity & ColliderComponent>((resolve, reject) => {
             loader.load( url, function ( gltf ) {
@@ -40,7 +41,7 @@ export namespace Entity
                 gltf.scene.traverse(function(child) {
                     if(child.type === 'Mesh')
                     {
-                        resolve(from_three_object(child, scale));
+                        resolve(from_three_object(child, scale, listen_to));
                     }
                 });
 
@@ -51,7 +52,7 @@ export namespace Entity
 
     }
 
-    export function from_three_object(three_object: THREE.Object3D<THREE.Event> & { geometry?: THREE.BufferGeometry, material? : THREE.Material }, scale : float3): Entity & RenderEntity & PhysicsEntity & ColliderComponent
+    export function from_three_object(three_object: THREE.Object3D<THREE.Event> & { geometry?: THREE.BufferGeometry, material? : THREE.Material }, scale : float3, listen_to : PhysicsEntity): Entity & RenderEntity & PhysicsEntity & ColliderComponent & CollisionSubscriberComponent
     {
         //loop through all the positions in the geometry and scale them
         if(three_object.geometry)
@@ -85,11 +86,13 @@ export namespace Entity
             transform : Transform.fromPositionRotationScale(
                 new float3(three_object.position.x,three_object.position.y,three_object.position.z ), //translation
                 Quaternion.fromEulerXYZ(three_object.rotation.x, three_object.rotation.y, three_object.rotation.z), //rotation
-                float3.one),// 
+                float3.one),// scale
             mesh : mesh,
             rigidbody : undefined,
             rigidBodyDesc : rigidbodyDesc,
-            collider : colliderDesc
+            collider : colliderDesc,
+            call_on_collision : true,
+            listen_to_collisions_with : [listen_to],
         };
     }
     

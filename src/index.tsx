@@ -13,7 +13,8 @@ import React from "react";
 import { System } from "./core/System";
 import { HandInput } from "./impl/HandInput";
 import { Render } from "./impl/Renderer";
-import { Physics } from "./impl/Physics";
+import { Physics, PhysicsEntity } from "./impl/Physics";
+import { Collision } from "./impl/Collision";
 
 function sandbox(width : number, height : number): Entity[]
 {
@@ -41,21 +42,25 @@ function sandbox(width : number, height : number): Entity[]
 async function main()
 {
   
+  const sandbox_entities = sandbox(2, 0.5);
+
   const ball = sphere(0.05, 0x0000ff,16, RigidBodyType.Dynamic, Transform.fromPositionRotationScale(new float3(0, 5, 0), Quaternion.identity, float3.one));
 
-  const helmet = await Entity.from_gltf_loader("DamagedHelmet.glb", new float3(0.1, 0.1, 0.1));
+  const helmet = await Entity.from_gltf_loader("DamagedHelmet.glb", new float3(0.1, 0.1, 0.1), sandbox_entities[0] as unknown as PhysicsEntity);
   helmet.transform.translation = new float3(0, 5, 0);
 
   console.log(helmet.transform.scale);
 
   ball.transform.translation = new float3(0,5,0);
 
+
+  
   
 
   //TODO: Make a better Enity Array Class with convenient methods
   var scene_array : Entity[] = [
     ball,
-    ...sandbox(2, 0.5),
+    ...sandbox_entities,
     ...LeftHandEntity,
     ...RightHandEntity,
     helmet
@@ -68,9 +73,11 @@ async function main()
 
 const getSystemArray = (world : World) : System<any>[] => 
 [
-  new HandInput(world),
   new Render(world),
   new Physics(world),
+  new HandInput(world),
+  new Collision(world)
+  
 ];
 
 main();

@@ -29,7 +29,6 @@ export class HandInput<T extends Entity & JointEntity> extends System<T>{
     xr_manager: WebXRManager;
     cached_pose: Float32Array;
 
-    init_priority: number = 2;
     run_priority: number = 2;
 
     async init_system(): Promise<void>
