@@ -15,6 +15,8 @@ import { HandInput } from "./impl/HandInput";
 import { Render } from "./impl/Renderer";
 import { Physics, PhysicsEntity } from "./impl/Physics";
 import { Collision } from "./impl/Collision";
+import { UIComponent, UIEntity } from "./impl/UI";
+import { ui } from "./shapes/ui";
 
 function sandbox(width : number, height : number): Entity[]
 {
@@ -54,7 +56,7 @@ async function main()
   ball.transform.translation = new float3(0,5,0);
 
 
-  
+  const ui = ui_test();
   
 
   //TODO: Make a better Enity Array Class with convenient methods
@@ -63,7 +65,8 @@ async function main()
     ...sandbox_entities,
     ...LeftHandEntity,
     ...RightHandEntity,
-    helmet
+    helmet,
+    ui
   ];
 
   const scene = new World(getSystemArray);
@@ -88,24 +91,9 @@ export function TestUI(): JSX.Element
   const [text, setText] = React.useState("Hello Conbini");
 
   return(
-    <div className="flex w-full h-full p-8 ">
+    <div className="flex w-full h-full p-8  bg-white rounded-3xl border-2 ">
       <div className="flex items-center justify-center w-48 h-48 bg-gray-300 rounded-xl text-gray-600 m-2 filter drop-shadow-lg hover:bg-blue-500" onClick={() => setText("I'm clicked real good!!")}>
         <div>{ text}</div>
-      </div>
-      <div className="flex items-center justify-center w-48 h-48 bg-gray-300 rounded-xl text-gray-600 m-2 filter drop-shadow-lg">
-        <div>Hello Conbini</div>
-      </div>
-      <div className="flex items-center justify-center w-48 h-48 bg-gray-300 rounded-xl text-gray-600 m-2 filter drop-shadow-lg">
-        <div>Hello Conbini</div>
-      </div>
-      <div className="flex items-center justify-center w-48 h-48 bg-gray-300 rounded-xl text-gray-600 m-2 filter drop-shadow-lg">
-        <div>Hello Conbini</div>
-      </div>
-      <div className="flex items-center justify-center w-48 h-48 bg-gray-300 rounded-xl text-gray-600 m-2 filter drop-shadow-lg">
-        <div>Hello Conbini</div>
-      </div>
-      <div className="flex items-center justify-center w-48 h-48 bg-gray-300 rounded-xl text-gray-600 m-2 filter drop-shadow-lg">
-        <div>Hello Conbini</div>
       </div>
     </div>
   );
@@ -115,11 +103,11 @@ export function TestUI(): JSX.Element
 
 
 
-async function ui_test()
+function ui_test()
 {
   const doc = new ConbiniUIDocument(<TestUI/>, 400, 400);
 
-
+  return ui(Transform.fromPositionRotationScale(new float3(0,1,0), Quaternion.identity, float3.one), doc, 0.3,0.3,0.05);
   
 }
 

@@ -3,7 +3,7 @@ import { ColliderDesc, RigidBody, TempContactManifold } from '@dimforge/rapier3d
 import { values } from "lodash";
 import { Entity } from "./Entity";
 import { World } from "./World";
-import { XRFrame } from "three";
+import { XRFrame, XRReferenceSpace } from "three";
 import { CollisionState } from "../impl/Collision";
 import { Physics, PhysicsEntity } from "../impl/Physics";
 
@@ -36,18 +36,21 @@ export abstract class System<T>
     afterUpdate?(time: number, frame?: XRFrame): Promise<void>;
 
     //called for each entity in the system each frame
-    abstract update(e: T, time: number, frame?: XRFrame) : Promise<void>;
+    abstract update(e: T, time: number, frame?: XRFrame, reference_space?: XRReferenceSpace) : Promise<void>;
 
-    async run_update(time: number, frame?: XRFrame) : Promise<void>
+    async run_update(time: number, frame?: XRFrame, reference_space?: XRReferenceSpace ) : Promise<void>
     {
         //allow the system to do preprocessing
         if(this.beforeUpdate) await this.beforeUpdate(time, frame);
 
         //for each entity process the update 
         //this has to be handled at the top world level to enable parallism?
+        
+        //DESIGN: I think this can be scheduled all in one chunk like this on a separate thread
+        //the world just needs to check if all write-to resources are not being written to by other systems
         await Promise.all(
             [...this.entities].map(async e => {
-                return this.update(e, time, frame);
+                return this.update(e, time, frame, reference_space);
             }
         ));
     }

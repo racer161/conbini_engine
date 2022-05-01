@@ -31,11 +31,13 @@ export class UI<T extends UIEntity> extends System<T>
         
     }
 
-    beforeUpdate(time: number, frame?: XRFrame): Promise<void> {
-        throw new Error("Method not implemented.");
+    async init_entity(e: T, pass: number): Promise<void> {
+        
     }
-    update(e: T, time: number, frame?: XRFrame): Promise<void> {
-        throw new Error("Method not implemented.");
+
+    
+    async update(e: T, time: number, frame?: XRFrame): Promise<void> {
+        //throw new Error("Method not implemented.");
     }
 
 }

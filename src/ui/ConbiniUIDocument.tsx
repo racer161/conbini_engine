@@ -6,7 +6,7 @@ import * as ReactDOMServer from 'react-dom/server';
 import { tailwind_uri } from './Tailwind';
 import ReactTestUtils from 'react-dom/test-utils'; // ES6
 import { Entity } from '../core/Entity';
-import { CanvasTexture } from 'three';
+import { sRGBEncoding, Texture } from 'three';
 
 //<link href="${tailwind_uri}" rel="stylesheet">
 const render_template = (content: string) => `
@@ -59,16 +59,13 @@ function getMousePosition(canvas : HTMLCanvasElement, event : MouseEvent){
 
 export class ConbiniUIDocument
 {
-    //TODO: create a hidden document and use that to render the UI too
-    //simulate mouse events
-    //on update rasterizeHTML.drawDocument
     backingScale: number;
     document: Document;
     canvas: HTMLCanvasElement;
     root_element: HTMLElement;
     context_2d: CanvasRenderingContext2D;
 
-    canvas_texture : CanvasTexture;
+    texture : Texture;
     constructor(ui_element : JSX.Element, width : number, height : number)
     {
         this.backingScale = backingScale();
@@ -86,11 +83,13 @@ export class ConbiniUIDocument
         this.canvas = document.createElement("canvas");
         scaleCanvasForRetina(this.canvas, width, height);
 
-        this.canvas_texture = new CanvasTexture(this.canvas);
+        this.texture = new Texture(this.canvas);
+        this.texture.encoding = sRGBEncoding;
+        this.texture.needsUpdate = true;
 
         this.context_2d = this.canvas.getContext("2d");
 
-        document.body.appendChild(this.canvas);
+        //document.body.appendChild(this.canvas);
         this.draw();
 
         var self = this;
@@ -132,6 +131,8 @@ export class ConbiniUIDocument
             zoom: dpi_scale,
             executeJs: false
         });
+
+        this.texture.needsUpdate = true;
         const end = performance.now();
         console.log(`Rasterized in ${end - start}ms`);
     }

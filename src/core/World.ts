@@ -1,5 +1,5 @@
 import { uniqueId } from "lodash";
-import { WebGLBufferRenderer, XRFrame } from "three";
+import { WebGLBufferRenderer, XRFrame, XRReferenceSpace } from "three";
 import { Entity } from "./Entity";
 import { System } from "./System";
 import { HandInput } from "../impl/HandInput";
@@ -56,13 +56,16 @@ export class World{
         this.system_array = this.system_array.sort((a, b) => a.run_priority - b.run_priority);
         
 
+        //START THE ENGINE LOOP
         var self = this;
         const render_system = this.system_array.find(s => s instanceof Render) as Render<RenderEntity>;
-
-        //START THE ENGINE LOOP
+        
+        
         render_system.renderer.setAnimationLoop((time: number, frame: XRFrame) => {
             if(self.current_frame_is_processing) return;
-            else self.update(time, frame);
+            //TODO: detect if a new reference space is available and update the renderer
+            //rather than updating it every frame
+            else self.update(time, frame, render_system.renderer.xr.getReferenceSpace());
         });
 
     }
@@ -80,13 +83,13 @@ export class World{
         }
     }
 
-    private async update(time: number, frame?: XRFrame){
+    private async update(time: number, frame?: XRFrame, reference_space?: XRReferenceSpace){
         this.current_frame_is_processing = true;
 
         //right now this schedules all updates synchronously
         //but eventually these should be moved to separate threads and scheduled asynchronously
         for(let system of this.system_array){
-            await system.run_update(time, frame);
+            await system.run_update(time, frame, reference_space);
         }
 
         this.current_frame_is_processing = false;

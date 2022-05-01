@@ -40,14 +40,13 @@ export class HandInput<T extends Entity & JointEntity> extends System<T>{
 
     
     async beforeUpdate(time: number, frame?: XRFrame): Promise<void>{
-        if(!this.session) this.session = this.xr_manager.getSession();
-        //TODO: detect hand rebinding after session pause
-        if(this.session && (!this.rightHand || !this.leftHand)) this.setHands();
+        
     }
 
-    async update(e: T, time: number, frame?: XRFrame): Promise<void> {
-        if(!e.joint_space) return;
-        const transform_snapshot = frame.getJointPose(e.joint_space, this.xr_manager.getReferenceSpace());
+    async update(e: T, time: number, frame?: XRFrame, reference_space?: XRReferenceSpace): Promise<void> {
+
+        if(!e.joint_space || !reference_space) return;
+        const transform_snapshot = frame.getJointPose(e.joint_space, reference_space);
         
 
         //if the transform is not valid, don't update it

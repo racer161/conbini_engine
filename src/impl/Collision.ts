@@ -1,8 +1,3 @@
-//TODO: Make a component for collision detection
-//only call collision event callbacks for entities that have this component
-//perform this check in the collision system
-//and keep track of collision state in the collision map
-
 import { TempContactManifold, World } from "@dimforge/rapier3d";
 import { XRFrame } from "three";
 import { keys } from "ts-transformer-keys";
@@ -43,7 +38,6 @@ export class Collision<T extends CollisionEntity> extends System<T>{
             //if(system.onCollision) this.on_collision_listeners.push(system);
         }
     }
-
     
     async update(e: CollisionEntity, time: number, frame?: XRFrame): Promise<void> {
         if(!e.call_on_collision) return;
@@ -75,7 +69,6 @@ export class Collision<T extends CollisionEntity> extends System<T>{
         console.log(`Collision detected between ${e} and ${other}`);
     }
     
-
 }
 
 export enum CollisionState
