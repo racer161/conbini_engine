@@ -40,7 +40,7 @@ export class Collision<T extends CollisionEntity> extends System<T>{
         for(let system of this.world.system_array)
         {
             //if the system has function defined then it can listen for collision events
-            if(system.onCollision) this.on_collision_listeners.push(system);
+            //if(system.onCollision) this.on_collision_listeners.push(system);
         }
     }
 
@@ -61,7 +61,7 @@ export class Collision<T extends CollisionEntity> extends System<T>{
     
                 for(let listener of this.on_collision_listeners)
                 {
-                    if(listener.entities.has(e)) listener.onCollision(e, e, CollisionState.Collision, _manifold, _flipped);
+                    //if(listener.entities.has(e)) listener.onCollision(e, e, CollisionState.Collision, _manifold, _flipped);
                 }
                 
              });

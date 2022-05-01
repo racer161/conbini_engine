@@ -6,6 +6,7 @@ import * as ReactDOMServer from 'react-dom/server';
 import { tailwind_uri } from './Tailwind';
 import ReactTestUtils from 'react-dom/test-utils'; // ES6
 import { Entity } from '../core/Entity';
+import { CanvasTexture } from 'three';
 
 //<link href="${tailwind_uri}" rel="stylesheet">
 const render_template = (content: string) => `
@@ -66,6 +67,8 @@ export class ConbiniUIDocument
     canvas: HTMLCanvasElement;
     root_element: HTMLElement;
     context_2d: CanvasRenderingContext2D;
+
+    canvas_texture : CanvasTexture;
     constructor(ui_element : JSX.Element, width : number, height : number)
     {
         this.backingScale = backingScale();
@@ -82,6 +85,8 @@ export class ConbiniUIDocument
 
         this.canvas = document.createElement("canvas");
         scaleCanvasForRetina(this.canvas, width, height);
+
+        this.canvas_texture = new CanvasTexture(this.canvas);
 
         this.context_2d = this.canvas.getContext("2d");
 

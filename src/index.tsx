@@ -75,8 +75,7 @@ const getSystemArray = (world : World) : System<any>[] =>
 [
   new Render(world),
   new Physics(world),
-  new HandInput(world),
-  new Collision(world)
+  new HandInput(world)
   
 ];
 

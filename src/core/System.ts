@@ -52,7 +52,7 @@ export abstract class System<T>
         ));
     }
 
-    onCollision?(e: T, other: PhysicsEntity, state : CollisionState, manifold: TempContactManifold, flipped : boolean ): void;
+    //onCollision?(e: T, other: PhysicsEntity, state : CollisionState, manifold: TempContactManifold, flipped : boolean ): void;
 
     constructor(world: World){
         this.world = world;
