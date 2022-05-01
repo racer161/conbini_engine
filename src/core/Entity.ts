@@ -32,7 +32,7 @@ const io = new WebIO({credentials: 'include'});
 //A class for reading in and managing a glTF document.
 export namespace Entity
 {
-    export async function from_gltf_loader(url : string) : Promise<Entity & RenderEntity & PhysicsEntity & ColliderComponent>
+    export async function from_gltf_loader(url : string, scale : float3) : Promise<Entity & RenderEntity & PhysicsEntity & ColliderComponent>
     {
         return new Promise<Entity & RenderEntity & PhysicsEntity & ColliderComponent>((resolve, reject) => {
             loader.load( url, function ( gltf ) {
@@ -40,7 +40,7 @@ export namespace Entity
                 gltf.scene.traverse(function(child) {
                     if(child.type === 'Mesh')
                     {
-                        resolve(from_three_object(child));
+                        resolve(from_three_object(child, scale));
                     }
                 });
 
@@ -51,10 +51,24 @@ export namespace Entity
 
     }
 
-    export function from_three_object(three_object: THREE.Object3D<THREE.Event> & { geometry?: THREE.BufferGeometry, material? : THREE.Material }): Entity & RenderEntity & PhysicsEntity & ColliderComponent
+    export function from_three_object(three_object: THREE.Object3D<THREE.Event> & { geometry?: THREE.BufferGeometry, material? : THREE.Material }, scale : float3): Entity & RenderEntity & PhysicsEntity & ColliderComponent
     {
+        //loop through all the positions in the geometry and scale them
+        if(three_object.geometry)
+        {
+            const positions = three_object.geometry.attributes.position;
+            if(positions)
+            {
+                for(let i = 0; i < positions.count; i++)
+                {
+                    positions.setXYZ(i, positions.getX(i) * scale[0], positions.getY(i) * scale[1], positions.getZ(i) * scale[2]);
+                }
+            }
+        }
+
 
         const mesh = new Mesh(three_object.geometry, three_object.material);
+        
 
         const rigidbodyDesc = new RigidBodyDesc(RigidBodyType.Dynamic);
 
@@ -71,7 +85,7 @@ export namespace Entity
             transform : Transform.fromPositionRotationScale(
                 new float3(three_object.position.x,three_object.position.y,three_object.position.z ), //translation
                 Quaternion.fromEulerXYZ(three_object.rotation.x, three_object.rotation.y, three_object.rotation.z), //rotation
-                new float3(three_object.scale.x, three_object.scale.y, three_object.scale.z)),// 
+                float3.one),// 
             mesh : mesh,
             rigidbody : undefined,
             rigidBodyDesc : rigidbodyDesc,

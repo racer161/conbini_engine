@@ -1,6 +1,6 @@
 import { ColliderDesc, RigidBodyDesc } from "@dimforge/rapier3d";
 import * as THREE from "three";
-import { ACESFilmicToneMapping, BufferGeometry, DirectionalLight, Material, Matrix4, Mesh, PMREMGenerator, sRGBEncoding, Texture } from "three";
+import { ACESFilmicToneMapping, Mesh, PMREMGenerator, sRGBEncoding } from "three";
 import { VRButton } from "three/examples/jsm/webxr/VRButton";
 import { keys } from "ts-transformer-keys";
 import { EditorControls } from "../../example/EditorControls";
@@ -10,16 +10,6 @@ import { System } from "../core/System"
 import { TransformComponent } from "../primitives/Transform";
 
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
-
-
-export interface GeometryComponent {
-    geometry: BufferGeometry;
-    mesh: Mesh;
-}
-
-export interface MaterialComponent{
-    material: Material
-}
 
 export interface MeshComponent{
     mesh: Mesh
@@ -45,7 +35,7 @@ export class Render<T extends RenderEntity> extends System<T>
     run_priority: number = 1000000000;
 
     //TODO: make this respect the entities created and not just harcode this scene
-    async init(): Promise<void> {
+    async init_system(): Promise<void> {
         const renderer = new THREE.WebGLRenderer( { antialias: true } );
         renderer.setPixelRatio( window.devicePixelRatio );
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -88,17 +78,16 @@ export class Render<T extends RenderEntity> extends System<T>
 
         this.camera.position.set(0, 2, 5);
 
-        //init entities into the threejs scene
-        this.world.entities_x_system.get(this.name).forEach((e : RenderEntity) => {
-            e.mesh.matrixAutoUpdate = false;
-            e.mesh.matrix.fromArray(e.transform.value);
-
-            this.three_scene.add(e.mesh);
-            this.three_scene.updateMatrixWorld(true);
-        })
-
         this.renderer.setSize( window.innerWidth, window.innerHeight );
         document.body.appendChild( this.renderer.domElement );
+    }
+
+    async init_entity(e: RenderEntity, pass: number): Promise<void> {
+        e.mesh.matrixAutoUpdate = false;
+        e.mesh.matrix.fromArray(e.transform.value);
+
+        this.three_scene.add(e.mesh);
+        this.three_scene.updateMatrixWorld(true);
     }
 
     onWindowResize() {

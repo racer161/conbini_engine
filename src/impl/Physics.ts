@@ -1,12 +1,11 @@
 import { System } from "../core/System";
 import RapierPhysics from '../../include/RapierPhysics';
-import { ColliderDesc, EventQueue, ImpulseJoint, JointData, JointType, MotorModel, PrismaticImpulseJoint, RigidBody, RigidBodyDesc, RigidBodyType, World } from "@dimforge/rapier3d";
+import { ActiveEvents, ColliderDesc, EventQueue, ImpulseJoint, JointData, JointType, MotorModel, PrismaticImpulseJoint, RigidBody, RigidBodyDesc, RigidBodyType, World } from "@dimforge/rapier3d";
 import { TransformComponent } from "../primitives/Transform";
 import { Entity, Static } from "../core/Entity";
 import { keys } from "ts-transformer-keys";
 import { float3 } from "../primitives";
 import { Quaternion } from "../primitives/Quaternion";
-import { Wrapping } from "three";
 
 //TODO: Implement event queue draining
 //TODO: filter entities that don't give a shit about collisions
@@ -17,65 +16,78 @@ export interface RigidBodyComponent{
 }
 
 export interface ColliderComponent{
-    collider : ColliderDesc;
+    collider? : ColliderDesc;
 }
 
 export interface JointComponent{
-    joint_data : JointData;
+    joint_data? : JointData;
     joined_entity? : Entity & RigidBodyComponent;
-    joint: ImpulseJoint;
+    joint?: ImpulseJoint;
 }
 
-export interface PhysicsEntity extends TransformComponent, RigidBodyComponent{}
+export interface PhysicsEntity extends TransformComponent, RigidBodyComponent, ColliderComponent, JointComponent{}
 
-export class Physics<T extends Entity & PhysicsEntity> extends System<T>{
+export interface PhysicsArchetype extends TransformComponent, RigidBodyComponent{}
+
+export class Physics<T extends PhysicsEntity> extends System<T>{
     
 
     name: string = "Physics";
 
-    archetype: string[] = keys<PhysicsEntity>();
+    archetype: string[] = keys<PhysicsArchetype>();
 
     physics: RapierPhysics;
 
     init_priority: number = 1;
+    init_entity_passes = 2;
     run_priority: number = 1;
 
-    async init(): Promise<void>
+    event_queue: EventQueue;
+
+    //
+    collision_map: Map<[number,number],CollisionState>;
+
+    async init_system(): Promise<void>
     {
         this.physics = await RapierPhysics.fromWASM();
-
-        //init entities into the threejs scene
-        this.world.entities_x_system.get(this.name).forEach((e : PhysicsEntity & Entity & Static & ColliderComponent) => {
-            e.rigidBodyDesc.setTranslation(e.transform.translation.x, e.transform.translation.y, e.transform.translation.z);
-            e.rigidBodyDesc.setRotation(e.transform.rotation);
-            e.rigidbody = this.physics.world.createRigidBody(e.rigidBodyDesc);
-            if(e.collider) this.physics.world.createCollider(e.collider, e.rigidbody.handle);
-
-            //TODO: rescale collider after scale change
-            //e.rigidbody.collider.
-
-        })
-
-        //Separate joint pass because the rigidbodies don't have a handle before they are initialized above
-        this.world.entities_x_system.get(this.name).forEach((e : PhysicsEntity & Entity & Static & JointComponent & ColliderComponent) => {
-            //if it has a joint
-            if(e.joint_data)
-            {
-                let joint : ImpulseJoint = this.physics.world.createImpulseJoint(e.joint_data, e.rigidbody, e.joined_entity?.rigidbody );
-
-                (joint as PrismaticImpulseJoint).configureMotorPosition(0, 1, 0);
-            }
-        })
-
-
+        this.event_queue = new EventQueue(false);
     }
 
+    
+    async init_entity(e : PhysicsEntity, pass : number) : Promise<void>
+    {
+        if(pass == 1) this.init_rigidbody(e);
+        else if(pass == 2) this.init_joint(e);
+    }
+
+    init_rigidbody(e : PhysicsEntity)
+    {
+        e.rigidBodyDesc.setTranslation(e.transform.translation.x, e.transform.translation.y, e.transform.translation.z);
+        e.rigidBodyDesc.setRotation(e.transform.rotation);
+        e.rigidbody = this.physics.world.createRigidBody(e.rigidBodyDesc);
+
+        if(e.collider) e.collider.setActiveEvents(ActiveEvents.COLLISION_EVENTS);
+        if(e.collider) this.physics.world.createCollider(e.collider, e.rigidbody.handle);
+    }
+
+    init_joint(e : PhysicsEntity)
+    {
+        //if it has a joint
+        if(e.joint_data)
+        {
+            let joint : ImpulseJoint = this.physics.world.createImpulseJoint(e.joint_data, e.rigidbody, e.joined_entity?.rigidbody );
+
+            (joint as PrismaticImpulseJoint).configureMotorPosition(0, 1, 1);
+
+        }
+    }
+
+
     async beforeUpdate(): Promise<void>{
-        //create the physics event queue
-        let eventQueue = new EventQueue(true);
-        
+
+
         // Step the simulation forward
-        this.physics.world.step();
+        this.physics.world.step(this.event_queue);
 
         
     }
@@ -84,11 +96,6 @@ export class Physics<T extends Entity & PhysicsEntity> extends System<T>{
         const translation = e.rigidbody.translation();
         const rotation = e.rigidbody.rotation();
         e.transform.compose(new float3(translation.x, translation.y, translation.z), Quaternion.fromRapier(rotation), e.transform.scale);
-
-    }
-
-    onCollision(e: T, other: Entity): void {
-        throw new Error("Method not implemented.");
     }
 }
 
@@ -107,4 +114,11 @@ export function getCollisionMask(membership : number, filter : number) : number
 
 function dec2bin(dec : number) {
     return (dec >>> 0).toString(2);
+}
+
+enum CollisionState
+{
+    CollisionFirstFrame = 0,
+    CollisionContinues = 1,
+    CollisionLastFrame = 2
 }

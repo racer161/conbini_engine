@@ -6,8 +6,8 @@ import { Entity } from '../core/Entity';
 import { float3 } from '../primitives';
 import { Quaternion } from '../primitives/Quaternion';
 import { Transform } from '../primitives/Transform';
-import { ColliderComponent, getCollisionMask, JointComponent, PhysicsEntity } from './Physics';
-import { RenderEntity } from './Renderer';
+import { ColliderComponent, getCollisionMask, JointComponent, PhysicsEntity } from '../impl/Physics';
+import { RenderEntity } from '../impl/Renderer';
 
 export interface HandComponent{
     joint_name : string,
@@ -62,7 +62,7 @@ function hand_joint_entity(joint_name : string, hand_type: HandType) : Entity[]
     let axis = { x: 0.0, y: 1.0, z: 0.0 };
     let joint_data = JointData.prismatic({ x: 0.0, y: 0.0, z: 0.0 }, { x: 0.0, y: 0.0, z: 0.0 }, axis);
     joint_data.limitsEnabled = true;
-    joint_data.limits = [-0.1, 0.1];
+    joint_data.limits = [-0.01, 0.01];
 
     const hand_tracked_point : Entity & HandComponent & PhysicsEntity & JointComponent = {
         id: undefined,

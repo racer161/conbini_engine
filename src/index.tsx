@@ -2,7 +2,7 @@ import { ColliderDesc, RigidBodyType } from "@dimforge/rapier3d";
 import * as THREE from "three";
 import { World } from "./core/World";
 import { float3 } from "./primitives";
-import { LeftHandEntity, RightHandEntity } from "./impl/HandEntity";
+import { LeftHandEntity, RightHandEntity } from "./shapes/HandEntity";
 import { Transform } from "./primitives/Transform";
 import { Quaternion } from "./primitives/Quaternion";
 import { Entity } from "./core/Entity";
@@ -10,6 +10,10 @@ import { sphere } from "./shapes/sphere";
 import { cube } from "./shapes/cube";
 import { ConbiniUIDocument, drawJSXToCanvas } from "./ui/ConbiniUIDocument";
 import React from "react";
+import { System } from "./core/System";
+import { HandInput } from "./impl/HandInput";
+import { Render } from "./impl/Renderer";
+import { Physics } from "./impl/Physics";
 
 function sandbox(width : number, height : number): Entity[]
 {
@@ -39,9 +43,8 @@ async function main()
   
   const ball = sphere(0.05, 0x0000ff,16, RigidBodyType.Dynamic, Transform.fromPositionRotationScale(new float3(0, 5, 0), Quaternion.identity, float3.one));
 
-  const helmet = await Entity.from_gltf_loader("DamagedHelmet.glb");
+  const helmet = await Entity.from_gltf_loader("DamagedHelmet.glb", new float3(0.1, 0.1, 0.1));
   helmet.transform.translation = new float3(0, 5, 0);
-  helmet.transform.scale = new float3(0.1, 0.1, 0.1);
 
   console.log(helmet.transform.scale);
 
@@ -58,8 +61,17 @@ async function main()
     helmet
   ];
 
-  const scene = new World(scene_array);
+  const scene = new World(getSystemArray);
+  scene.init(scene_array);
+
 }
+
+const getSystemArray = (world : World) : System<any>[] => 
+[
+  new HandInput(world),
+  new Render(world),
+  new Physics(world),
+];
 
 main();
 

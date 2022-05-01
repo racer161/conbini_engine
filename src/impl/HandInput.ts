@@ -1,29 +1,23 @@
 import { System } from "../core/System";
 import RapierPhysics from '../../include/RapierPhysics';
-import { ColliderDesc, RigidBody, RigidBodyDesc } from "@dimforge/rapier3d";
+import { ColliderDesc, RigidBody, RigidBodyDesc, World } from "@dimforge/rapier3d";
 import { TransformComponent } from "../primitives/Transform";
 import { Entity } from "../core/Entity";
 import { keys } from "ts-transformer-keys";
 
-import { HandComponent, HandType } from "./HandEntity";
+import { HandComponent, HandType } from "../shapes/HandEntity";
 import { XRInputSource, XRSession, WebXRManager, XRFrame, XRHandJoint, XRJointPose, XRHand, XRReferenceSpace, Vector3, Quaternion } from "three";
 import { XRSpace } from "webxr";
 import { float3 } from "../primitives";
 import { transform } from "lodash";
 import { ColliderComponent, JointComponent, RigidBodyComponent } from "./Physics";
+import { Render, RenderEntity } from "./Renderer";
 
 
 
 interface JointEntity extends TransformComponent, HandComponent, RigidBodyComponent, JointComponent{}
 
-
-interface WebXRFrameHaver{
-    getFrame(): XRFrame;
-}
-
 export class HandInput<T extends Entity & JointEntity> extends System<T>{
-    
-
     name: string = "HandInput";
 
     archetype: string[] = keys<JointEntity>();
@@ -38,16 +32,16 @@ export class HandInput<T extends Entity & JointEntity> extends System<T>{
     init_priority: number = 2;
     run_priority: number = 2;
 
-    async init(): Promise<void>
+    async init_system(): Promise<void>
     {
-        const renderer = this.world.render_system.renderer;
-        this.xr_manager = renderer.xr as WebXRManager;
+        const renderer = this.world.system_array.find(s => s instanceof Render) as Render<RenderEntity>;
+        this.xr_manager = renderer.renderer.xr as WebXRManager;
         
     }
 
     
     async beforeUpdate(time: number, frame?: XRFrame): Promise<void>{
-        if(!this.session) this.session = this.world.render_system.renderer.xr.getSession();
+        if(!this.session) this.session = this.xr_manager.getSession();
         //TODO: detect hand rebinding after session pause
         if(this.session && (!this.rightHand || !this.leftHand)) this.setHands();
     }
@@ -88,17 +82,13 @@ export class HandInput<T extends Entity & JointEntity> extends System<T>{
     {
         console.log(`Setting ${hand_type} joint poses`);
         
-        this.world.entities_x_system.get(this.name).forEach((e : JointEntity) => {
+        this.entities.forEach((e : JointEntity) => {
             //if the entity is on the same hand as the one we're looking at
             if(e.hand_type === hand_type){
                 //set the joint space pointer to the entities pointer
                 e.joint_space = hand.get(e.joint_name as unknown as XRHandJoint);
             } 
         })
-    }
-
-    onCollision(e: T, other: Entity): void {
-        throw new Error("Method not implemented.");
     }
 
 }
