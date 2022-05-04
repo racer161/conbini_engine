@@ -1,17 +1,11 @@
-import { ColliderDesc, RigidBodyDesc, TempContactManifold } from "@dimforge/rapier3d";
 import * as THREE from "three";
-import { ACESFilmicToneMapping, Mesh, PMREMGenerator, sRGBEncoding, WebXRManager } from "three";
+import { ACESFilmicToneMapping, Mesh, PMREMGenerator, sRGBEncoding } from "three";
 import { VRButton } from "three/examples/jsm/webxr/VRButton";
 import { keys } from "ts-transformer-keys";
 import { EditorControls } from "../../example/EditorControls";
-import RapierPhysics from "../../include/RapierPhysics";
-import { Entity } from "../core/Entity";
 import { System } from "../core/System"
-import { TransformComponent } from "../primitives/Transform";
+import { TransformComponent } from "./Transformation";
 
-import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
-import { CollisionState } from "./Collision";
-import { PhysicsEntity } from "./Physics";
 
 export interface MeshComponent{
     mesh: Mesh
@@ -22,7 +16,6 @@ export interface RenderEntity extends TransformComponent, MeshComponent{}
  
 export class Render<T extends RenderEntity> extends System<T> 
 {
-    
     name: string = "Render";
 
     renderer: THREE.WebGLRenderer;
@@ -33,9 +26,9 @@ export class Render<T extends RenderEntity> extends System<T>
 
     archetype: string[] = keys<RenderEntity>();
 
-    run_priority: number = 1000000000;
+    run_priority: number = 1000000001;
 
-    //TODO: make this respect the entities created and not just harcode this scene
+    
     async init_system(): Promise<void> {
         const renderer = new THREE.WebGLRenderer( { antialias: true } );
         renderer.setPixelRatio( window.devicePixelRatio );
@@ -58,7 +51,6 @@ export class Render<T extends RenderEntity> extends System<T>
 
         const pmremGenerator = new PMREMGenerator(renderer);
         pmremGenerator.compileEquirectangularShader();
-
 
         this.renderer.xr.enabled = true;
 
@@ -89,6 +81,7 @@ export class Render<T extends RenderEntity> extends System<T>
 
         this.three_scene.add(e.mesh);
         this.three_scene.updateMatrixWorld(true);
+        
     }
 
     onWindowResize() {

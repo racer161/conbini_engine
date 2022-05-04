@@ -1,7 +1,7 @@
 import { System } from "../core/System";
 import RapierPhysics from '../../include/RapierPhysics';
 import { ColliderDesc, RigidBody, RigidBodyDesc, World } from "@dimforge/rapier3d";
-import { TransformComponent } from "../primitives/Transform";
+import { TransformComponent } from "../impl/Transformation";
 import { Entity } from "../core/Entity";
 import { keys } from "ts-transformer-keys";
 
@@ -15,12 +15,12 @@ import { Render, RenderEntity } from "./Renderer";
 
 
 
-interface JointEntity extends TransformComponent, HandComponent, RigidBodyComponent, JointComponent{}
+export interface HandEntity extends TransformComponent, HandComponent, RigidBodyComponent, JointComponent{}
 
-export class HandInput<T extends Entity & JointEntity> extends System<T>{
+export class HandInput<T extends Entity & HandEntity> extends System<T>{
     name: string = "HandInput";
 
-    archetype: string[] = keys<JointEntity>();
+    archetype: string[] = keys<HandEntity>();
     session: XRSession;
 
     rightHand: XRHand;
@@ -30,6 +30,8 @@ export class HandInput<T extends Entity & JointEntity> extends System<T>{
     cached_pose: Float32Array;
 
     run_priority: number = 2;
+    physics_world: any;
+    
 
     async init_system(): Promise<void>
     {
@@ -46,8 +48,6 @@ export class HandInput<T extends Entity & JointEntity> extends System<T>{
     }
 
     async update(e: T, time: number, frame?: XRFrame): Promise<void> {
-
-        
         if(!e.joint_space) return;
         const transform_snapshot = frame.getJointPose(e.joint_space, this.xr_manager.getReferenceSpace());
         
@@ -83,7 +83,7 @@ export class HandInput<T extends Entity & JointEntity> extends System<T>{
     {
         console.log(`Setting ${hand_type} joint poses`);
         
-        this.entities.forEach((e : JointEntity) => {
+        this.entities.forEach((e : HandEntity) => {
             //if the entity is on the same hand as the one we're looking at
             if(e.hand_type === hand_type){
                 //set the joint space pointer to the entities pointer

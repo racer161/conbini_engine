@@ -1,7 +1,7 @@
 import { System } from "../core/System";
 import RapierPhysics from '../../include/RapierPhysics';
 import { ActiveEvents, ColliderDesc, EventQueue, ImpulseJoint, JointData, JointType, MotorModel, PrismaticImpulseJoint, RigidBody, RigidBodyDesc, RigidBodyType, World } from "@dimforge/rapier3d";
-import { TransformComponent } from "../primitives/Transform";
+import { TransformComponent } from "./Transformation";
 import { Entity, Static } from "../core/Entity";
 import { keys } from "ts-transformer-keys";
 import { float3 } from "../primitives";
@@ -91,6 +91,9 @@ export class Physics<T extends PhysicsEntity> extends System<T>{
     async update(e: T & Static): Promise<void> {
         const translation = e.rigidbody.translation();
         const rotation = e.rigidbody.rotation();
+
+        //TODO: this should be local transform if there is a parent object?
+        //only top level entities can have physics?
         e.transform.compose(new float3(translation.x, translation.y, translation.z), Quaternion.fromRapier(rotation), e.transform.scale);
     }
 }

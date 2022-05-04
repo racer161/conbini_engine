@@ -49,6 +49,7 @@ function hand_joint_entity(joint_name : string, hand_type: HandType) : Entity[]
     const physics_sphere : Entity & PhysicsEntity & RenderEntity & ColliderComponent  = 
     { 
         id: undefined,
+        name: joint_name + "-" + hand_type + "-sphere",
         transform: Transform.fromPositionRotationScale(translation, rotation, scale),
         mesh: new Mesh( geometry, material ),
         rigidBodyDesc: rigidBodyDesc,
@@ -66,6 +67,7 @@ function hand_joint_entity(joint_name : string, hand_type: HandType) : Entity[]
 
     const hand_tracked_point : Entity & HandComponent & PhysicsEntity & JointComponent = {
         id: undefined,
+        name: joint_name + "-" + hand_type + "-tracker",
         hand_type: hand_type,
         joint_space: undefined,
         joint_name: joint_name,

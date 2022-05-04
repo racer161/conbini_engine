@@ -13,10 +13,6 @@ export class Quaternion extends float4
 
 	public static identity : Quaternion = new Quaternion(0,0,0,1);
 
-    constructor(x: number = 0, y: number = 0, z: number = 0, w: number = 1) {
-        super([x,y,z,w]);
-    }
-
     public static fromTransform(transform : Transform) : Quaternion
     {
 		//removes the scale from the transformation matrix then computes the quaternion

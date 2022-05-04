@@ -3,7 +3,7 @@ import { XRFrame } from "three";
 import { keys } from "ts-transformer-keys";
 import { Entity } from "../core/Entity";
 import { System } from "../core/System";
-import { TransformComponent } from "../primitives/Transform";
+import { TransformComponent } from "../impl/Transformation";
 import { ColliderComponent, Physics, PhysicsEntity, RigidBodyComponent } from "./Physics";
 
 export interface CollisionSubscriberComponent

@@ -55,7 +55,7 @@ export class World{
         //ORDER THE SYSTEMS BY run_priority
         this.system_array = this.system_array.sort((a, b) => a.run_priority - b.run_priority);
         
-
+        console.log(this.entity_array);
         //START THE ENGINE LOOP
         var self = this;
         const render_system = this.system_array.find(s => s instanceof Render) as Render<RenderEntity>;
@@ -63,18 +63,13 @@ export class World{
         
         render_system.renderer.setAnimationLoop((time: number, frame: XRFrame) => {
             if(self.current_frame_is_processing) return;
-            //TODO: detect if a new reference space is available and update the renderer
-            //rather than updating it every frame
-            else
-            {
-                self.update(time, frame);
-            } 
+            else self.update(time, frame);
         });
 
     }
 
     //THIS FUNCTION DOES NOT INITIALIZE ENTITIES IT ONLY INSERTS THEM TO THE DATA STRUCTURES
-    insert_entity(e : Entity){
+    insert_entity(e : Entity, init: boolean = false){
         //add it to the global array
         this.entity_array.push(e);
 
@@ -82,6 +77,7 @@ export class World{
         for(let system of this.system_array){
             if(system.archetype.every(a => e.hasOwnProperty(a))){
                 system.entities.add(e);
+                if(init) system.init_entity(e, 0);
             }
         }
     }
@@ -95,7 +91,16 @@ export class World{
             await system.run_update(time, frame);
         }
 
+        //LIFE HACK: if you only want to process the first frame of the frame loop for debugging you can comment this line out
         this.current_frame_is_processing = false;
+    }
+
+    getEntityByName(name : string){
+        return this.entity_array.find(e => e.name === name);
+    }
+
+    getEntitiesByName(names : string[]){
+        return this.entity_array.filter(e => names.includes(e.name));
     }
 }
 

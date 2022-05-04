@@ -53,6 +53,8 @@ export abstract class System<T>
                 return this.update(e, time, frame);
             }
         ));
+
+        if(this.afterUpdate) await this.afterUpdate(time, frame);
     }
 
     //onCollision?(e: T, other: PhysicsEntity, state : CollisionState, manifold: TempContactManifold, flipped : boolean ): void;

@@ -37,7 +37,8 @@ module.exports = {
     },
     devtool: 'inline-source-map',
     devServer: {
-        static: './dist',
+        static: path.join(__dirname, "./dist/"),
+        open: "Chrome",
         host: 'localhost',
         port: 8080,
     },

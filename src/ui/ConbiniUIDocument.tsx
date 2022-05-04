@@ -15,6 +15,8 @@ const render_template = (content: string) => `
     ${content}
 </html>`;
 
+
+//TODO: width and height should be a power of 2
 export async function drawJSXToCanvas(element : JSX.Element, canvas : HTMLCanvasElement, backingScale :number)
 {
     const start = performance.now();
@@ -27,7 +29,7 @@ export async function drawJSXToCanvas(element : JSX.Element, canvas : HTMLCanvas
     
     await rasterizeHTML.drawHTML(render_template(str), canvas, {
         zoom: dpi_scale,
-        executeJs: false,
+        executeJs: false, 
     });
 
     const end = performance.now();
@@ -59,41 +61,43 @@ function getMousePosition(canvas : HTMLCanvasElement, event : MouseEvent){
 
 export class ConbiniUIDocument
 {
-    backingScale: number;
     document: Document;
     canvas: HTMLCanvasElement;
     root_element: HTMLElement;
     context_2d: CanvasRenderingContext2D;
 
     texture : Texture;
+    width: number;
+    height: number;
     constructor(ui_element : JSX.Element, width : number, height : number)
     {
-        this.backingScale = backingScale();
+        this.width = width;
+        this.height = height;
+
+        const wrapper_element = document.createElement('div');
+        wrapper_element.style.display = 'none';
         this.root_element = document.createElement("div");
-        this.root_element.style.width = width + "px";
-        this.root_element.style.height = height + "px";
-
+        //this.root_element.style.backgroundColor = '#ff0';
         
-
-        document.body.appendChild(this.root_element);
+        wrapper_element.appendChild(this.root_element);
+        document.body.appendChild(wrapper_element);
 
         const react_root = ReactDOM.createRoot(this.root_element);
         react_root.render(ui_element);
 
+
         this.canvas = document.createElement("canvas");
-        scaleCanvasForRetina(this.canvas, width, height);
+        this.canvas.width = width;
+        this.canvas.height = height;
+        //scaleCanvasForRetina(this.canvas, width, height, this.backingScale);    
 
-        this.texture = new Texture(this.canvas);
-        this.texture.encoding = sRGBEncoding;
-        this.texture.needsUpdate = true;
-
+        
         this.context_2d = this.canvas.getContext("2d");
 
         //document.body.appendChild(this.canvas);
-        this.draw();
 
+        
         var self = this;
-
         const observer = new MutationObserver(function(mutationsList, observer) {
             self.draw();
         });
@@ -116,6 +120,17 @@ export class ConbiniUIDocument
 
         observer.observe(this.root_element, {characterData: true, childList: true, attributes: true, subtree: true});
     }
+    
+    async init()
+    {
+        await this.draw()
+        this.texture = new Texture(this.canvas);
+        this.texture.encoding = sRGBEncoding;
+        this.texture.anisotropy = 16;
+        this.texture.needsUpdate = true;
+        
+        
+    }
 
     async draw()
     {
@@ -123,16 +138,11 @@ export class ConbiniUIDocument
 
         this.context_2d.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        const dpi_scale = this.backingScale;
-
         const html_string = render_template(this.root_element.innerHTML);
 
         const result = await rasterizeHTML.drawHTML(html_string, this.canvas, {
-            zoom: dpi_scale,
             executeJs: false
         });
-
-        this.texture.needsUpdate = true;
         const end = performance.now();
         console.log(`Rasterized in ${end - start}ms`);
     }

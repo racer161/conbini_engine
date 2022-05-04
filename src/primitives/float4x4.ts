@@ -1,13 +1,13 @@
 export class float4x4 {
 
-	value : Float32Array | [
+	value : [
 		number, number, number, number,
 		number, number, number, number,
 		number, number, number, number,
 		number, number, number, number
 	]
 
-	constructor(array?: Float32Array | [number, number, number, number,
+	constructor(array?: [number, number, number, number,
 										number, number, number, number,
 										number, number, number, number,
 										number, number, number, number] )

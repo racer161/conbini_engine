@@ -1,12 +1,13 @@
 import { transform } from "lodash";
 import { Matrix4 } from "three";
 import { float3 } from "./float3";
+import { float4 } from "./float4";
 import { float4x4 } from "./float4x4";
 import { Quaternion } from "./Quaternion";
 
 export class Transform extends float4x4
 {
-    constructor(array?: Float32Array | [number, number, number, number,
+    constructor(array?: [number, number, number, number,
                                         number, number, number, number,
                                         number, number, number, number,
                                         number, number, number, number] )
@@ -152,8 +153,60 @@ export class Transform extends float4x4
 		);
     }
 
-}
+	to_string() : string
+	{
+		return `pos: ${this.translation} rot: ${this.rotation} scale: ${this.scale}`;
+	}
 
-export interface TransformComponent{
-    transform : Transform;
+
+	multiply(a : Transform, b : Transform) : Transform
+	{
+
+		const a11 = a.value[ 0 ], a12 = a.value[ 4 ], a13 = a.value[ 8 ], a14 = a.value[ 12 ];
+		const a21 = a.value[ 1 ], a22 = a.value[ 5 ], a23 = a.value[ 9 ], a24 = a.value[ 13 ];
+		const a31 = a.value[ 2 ], a32 = a.value[ 6 ], a33 = a.value[ 10 ], a34 = a.value[ 14 ];
+		const a41 = a.value[ 3 ], a42 = a.value[ 7 ], a43 = a.value[ 11 ], a44 = a.value[ 15 ];
+
+		const b11 = b.value[ 0 ], b12 = b.value[ 4 ], b13 = b.value[ 8 ], b14 = b.value[ 12 ];
+		const b21 = b.value[ 1 ], b22 = b.value[ 5 ], b23 = b.value[ 9 ], b24 = b.value[ 13 ];
+		const b31 = b.value[ 2 ], b32 = b.value[ 6 ], b33 = b.value[ 10 ], b34 = b.value[ 14 ];
+		const b41 = b.value[ 3 ], b42 = b.value[ 7 ], b43 = b.value[ 11 ], b44 = b.value[ 15 ];
+
+		this.value[ 0 ] = a11 * b11 + a12 * b21 + a13 * b31 + a14 * b41;
+		this.value[ 4 ] = a11 * b12 + a12 * b22 + a13 * b32 + a14 * b42;
+		this.value[ 8 ] = a11 * b13 + a12 * b23 + a13 * b33 + a14 * b43;
+		this.value[ 12 ] = a11 * b14 + a12 * b24 + a13 * b34 + a14 * b44;
+
+		this.value[ 1 ] = a21 * b11 + a22 * b21 + a23 * b31 + a24 * b41;
+		this.value[ 5 ] = a21 * b12 + a22 * b22 + a23 * b32 + a24 * b42;
+		this.value[ 9 ] = a21 * b13 + a22 * b23 + a23 * b33 + a24 * b43;
+		this.value[ 13 ] = a21 * b14 + a22 * b24 + a23 * b34 + a24 * b44;
+
+		this.value[ 2 ] = a31 * b11 + a32 * b21 + a33 * b31 + a34 * b41;
+		this.value[ 6 ] = a31 * b12 + a32 * b22 + a33 * b32 + a34 * b42;
+		this.value[ 10 ] = a31 * b13 + a32 * b23 + a33 * b33 + a34 * b43;
+		this.value[ 14 ] = a31 * b14 + a32 * b24 + a33 * b34 + a34 * b44;
+
+		this.value[ 3 ] = a41 * b11 + a42 * b21 + a43 * b31 + a44 * b41;
+		this.value[ 7 ] = a41 * b12 + a42 * b22 + a43 * b32 + a44 * b42;
+		this.value[ 11 ] = a41 * b13 + a42 * b23 + a43 * b33 + a44 * b43;
+		this.value[ 15 ] = a41 * b14 + a42 * b24 + a43 * b34 + a44 * b44;
+
+		return this;
+
+	  }
+	
+	static fromMatrix4( m : Matrix4 ) : Transform
+	{
+		return new Transform( m.elements as [number, number, number, number,
+			number, number, number, number,
+			number, number, number, number,
+			number, number, number, number]);
+	}
+
+	deep_copy() : Transform
+	{
+		return new Transform([...this.value]);
+	}
+
 }
