@@ -30,21 +30,14 @@ const base_path = '/assets/models/';
 //A class for reading in and managing a glTF document.
 export namespace Entity
 {
-    export async function from_gltf_loader(url : string) : Promise<Entity[]>
+    export async function from_gltf_loader(url : string) : Promise<Entity>
     {
-        return new Promise<Entity[]>((resolve, reject) => {
-
+        return new Promise<Entity>((resolve, reject) => {
             loader.setPath(base_path + url);
 
-            loader.load( "scene.gltf", async function ( gltf ) {
-                console.log(gltf);
-                //const entities = await from_three_object_recursive(gltf.scene);
-                const top_entity = from_three_object_recursive(gltf.scene, false);
-                console.log(top_entity);
+            loader.load( "scene.gltf", function ( gltf ) {
 
-                const entity_array = inOrderTreeTraversal(top_entity as unknown as Entity & ParentEntity);
-                entity_array.push(top_entity);
-                resolve(entity_array);
+                resolve(from_three_object_recursive(gltf.scene, false));
 
             }, undefined, reject);
         });
@@ -64,6 +57,7 @@ export namespace Entity
         return entity;
     }
 
+    //TODO: add physics at some point?
     export function from_three_object(three_object: THREE.Object3D<THREE.Event> & { geometry?: THREE.BufferGeometry, material? : THREE.Material },parent: boolean, children? : Array<TransformComponent & LocalTransformComponent & Entity>, ): Entity
     {   
         const rigidbodyDesc = new RigidBodyDesc(RigidBodyType.Dynamic);
@@ -100,20 +94,18 @@ export namespace Entity
         return fin_entity;
     }
 
-    function inOrderTreeTraversal(entity : Entity & ParentEntity) : Entity[]
+    export function inOrderTreeTraversal(entity : Entity & ParentEntity, callback : (e : Entity) => void ) : void
     {
-        const entity_array : Entity[] = [];
+        callback(entity);
         const children = entity.children;
         if(children)
         {
             for(let i = 0; i < children.length; i++)
             {
                 const child = children[i];
-                entity_array.push(child);
-                entity_array.push(...inOrderTreeTraversal(child as unknown as Entity & ParentEntity));
+                inOrderTreeTraversal(child as unknown as Entity & ParentEntity, callback);
             }
         }
-        return entity_array;
     }
     
 }

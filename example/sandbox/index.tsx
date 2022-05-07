@@ -1,23 +1,23 @@
 import { ColliderDesc, RigidBodyType } from "@dimforge/rapier3d";
 import * as THREE from "three";
-import { World } from "./core/World";
-import { float3 } from "./primitives";
-import { LeftHandEntity, RightHandEntity } from "./shapes/HandEntity";
-import { Transform } from "./primitives/Transform";
-import { Transformation, TransformComponent } from "./impl/Transformation";
-import { Quaternion } from "./primitives/Quaternion";
-import { Entity } from "./core/Entity";
-import { sphere } from "./shapes/sphere";
-import { cube } from "./shapes/cube";
-import { ConbiniUIDocument, drawJSXToCanvas } from "./ui/ConbiniUIDocument";
+import { World } from "../../src/core/World";
+import { float3 } from "../../src/primitives";
+import { LeftHandEntity, RightHandEntity } from "../../src/shapes/HandEntity";
+import { Transform } from "../../src/primitives/Transform";
+import { Transformation, TransformComponent } from "../../src/impl/Transformation";
+import { Quaternion } from "../../src/primitives/Quaternion";
+import { Entity } from "../../src/core/Entity";
+import { sphere } from "../../src/shapes/sphere";
+import { cube } from "../../src/shapes/cube";
+import { ConbiniUIDocument, drawJSXToCanvas } from "../../src/ui/ConbiniUIDocument";
 import React from "react";
-import { System } from "./core/System";
-import { HandInput } from "./impl/HandInput";
-import { Render } from "./impl/Renderer";
-import { Physics, PhysicsEntity } from "./impl/Physics";
-import { Collision } from "./impl/Collision";
-import { UI, UIComponent, UIEntity } from "./impl/UI";
-import { ui } from "./shapes/ui";
+import { System } from "../../src/core/System";
+import { HandInput } from "../../src/impl/Input/HandInput";
+import { Render } from "../../src/impl/Renderer";
+import { Physics, PhysicsEntity } from "../../src/impl/Physics";
+import { Collision } from "../../src/impl/Collision";
+import { UI, UIComponent, UIEntity } from "../../src/impl/UI";
+import { ui } from "../../src/shapes/ui";
 
 function sandbox(width : number, height : number): Entity[]
 {
@@ -59,7 +59,7 @@ async function main()
     ...sandbox_entities,
     ...LeftHandEntity,
     ...RightHandEntity,
-    ...gltf_import,
+    gltf_import,
     ...ui
   ];
 

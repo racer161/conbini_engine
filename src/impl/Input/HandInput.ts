@@ -1,17 +1,17 @@
-import { System } from "../core/System";
-import RapierPhysics from '../../include/RapierPhysics';
+import { System } from "../../core/System";
+import RapierPhysics from '../../../include/RapierPhysics';
 import { ColliderDesc, RigidBody, RigidBodyDesc, World } from "@dimforge/rapier3d";
-import { TransformComponent } from "../impl/Transformation";
-import { Entity } from "../core/Entity";
+import { TransformComponent } from "../Transformation";
+import { Entity } from "../../core/Entity";
 import { keys } from "ts-transformer-keys";
 
-import { HandComponent, HandType } from "../shapes/HandEntity";
+import { HandComponent, HandType } from "../../shapes/HandEntity";
 import { XRInputSource, XRSession, WebXRManager, XRFrame, XRHandJoint, XRJointPose, XRHand, XRReferenceSpace, Vector3, Quaternion } from "three";
 import { XRSpace } from "webxr";
-import { float3 } from "../primitives";
+import { float3 } from "../../primitives";
 import { transform } from "lodash";
-import { ColliderComponent, JointComponent, RigidBodyComponent } from "./Physics";
-import { Render, RenderEntity } from "./Renderer";
+import { ColliderComponent, JointComponent, RigidBodyComponent } from "../Physics";
+import { Render, RenderEntity } from "../Renderer";
 
 
 

@@ -5,7 +5,7 @@ import { Entity } from "../core/Entity";
 import { System } from "../core/System";
 import { TransformComponent } from "../impl/Transformation";
 import { ConbiniUIDocument } from "../ui/ConbiniUIDocument";
-import { HandEntity, HandInput } from "./HandInput";
+import { HandEntity, HandInput } from "./Input/HandInput";
 import { Physics, PhysicsEntity, RigidBodyComponent } from "./Physics";
 import { MeshComponent } from "./Renderer";
 

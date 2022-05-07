@@ -2,9 +2,10 @@ import { uniqueId } from "lodash";
 import { WebGLBufferRenderer, XRFrame, XRReferenceSpace } from "three";
 import { Entity } from "./Entity";
 import { System } from "./System";
-import { HandInput } from "../impl/HandInput";
+import { HandInput } from "../impl/Input/HandInput";
 import { Physics } from "../impl/Physics";
 import { RenderEntity, Render } from "../impl/Renderer";
+import { ParentEntity } from "../impl/Transformation";
 
 export class World{
 
@@ -29,7 +30,11 @@ export class World{
 
         //INSERT STARTING ENTITIES
         for(let e of starting_entities){
-            this.insert_entity(e);
+            //if the entity has children descend and add those to the Array as well
+            Entity.inOrderTreeTraversal(e as unknown as Entity & ParentEntity, (e : Entity & ParentEntity) => 
+            { 
+                this.insert_entity(e); 
+            } );
         }
 
         const max_passes = this.system_array.reduce((acc, s) => Math.max(acc, s.init_entity_passes), 0);
