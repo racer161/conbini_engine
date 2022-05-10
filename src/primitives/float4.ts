@@ -7,6 +7,11 @@ export class float4 extends Array<number>{
     get z() { return this[2]; }
     get w() { return this[3]; }
 
+    set x(value: number) { this[0] = value; }
+    set y(value: number) { this[1] = value; }
+    set z(value: number) { this[2] = value; }
+    set w(value: number) { this[3] = value; }
+
 
     distance(b : [number, number, number, number]) : number
     {
@@ -23,11 +28,14 @@ export class float4 extends Array<number>{
         return Math.sqrt(this[0] * this[0] + this[1] * this[1] + this[2] * this[2] + this[3] * this[3]);
     }
 
-    normalize() : [number, number, number, number]
+    normalize() : void
     {
         // throw new Error('4');
         let len = this.magnitude();
-        return [this[0] / len, this[1] / len, this[2] / len, this[3]/ len];
+        this[0] /= len;
+        this[1] /= len;
+        this[2] /= len;
+        this[3] /= len;
     }
 
     dot(b : [number, number, number, number]) : number
@@ -38,11 +46,11 @@ export class float4 extends Array<number>{
     
     static multiplyTransformAndPoint(transform : Transform, point : float4) : float4
     {
-        // Give a simple variable name to each part of the transform.value, a column and row number
-        let c0r0 = transform.value[ 0], c1r0 = transform.value[ 1], c2r0 = transform.value[ 2], c3r0 = transform.value[ 3];
-        let c0r1 = transform.value[ 4], c1r1 = transform.value[ 5], c2r1 = transform.value[ 6], c3r1 = transform.value[ 7];
-        let c0r2 = transform.value[ 8], c1r2 = transform.value[ 9], c2r2 = transform.value[10], c3r2 = transform.value[11];
-        let c0r3 = transform.value[12], c1r3 = transform.value[13], c2r3 = transform.value[14], c3r3 = transform.value[15];
+        // Give a simple variable name to each part of the transform, a column and row number
+        let c0r0 = transform[ 0], c1r0 = transform[ 1], c2r0 = transform[ 2], c3r0 = transform[ 3];
+        let c0r1 = transform[ 4], c1r1 = transform[ 5], c2r1 = transform[ 6], c3r1 = transform[ 7];
+        let c0r2 = transform[ 8], c1r2 = transform[ 9], c2r2 = transform[10], c3r2 = transform[11];
+        let c0r3 = transform[12], c1r3 = transform[13], c2r3 = transform[14], c3r3 = transform[15];
       
         // Now set some simple names for the point
         let x = point[0];

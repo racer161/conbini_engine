@@ -7,20 +7,15 @@ import { Quaternion } from "./Quaternion";
 
 export class Transform extends float4x4
 {
-    constructor(array?: [number, number, number, number,
-                                        number, number, number, number,
-                                        number, number, number, number,
-                                        number, number, number, number] )
-    {
-
-        if(array) super(array);
-        //init the array to identity matrix
-        else super();
-    }
+	public static identity : Transform = new Transform(
+		1.0, 0.0, 0.0, 0.0,
+		 0.0, 1.0, 0.0, 0.0,
+		 0.0, 0.0, 1.0, 0.0,
+		 0.0, 0.0, 0.0, 1.0);
 
     static fromPositionRotationScale(position? : float3, rotation? : Quaternion, scale? : float3) : Transform
     {
-        let transform = new Transform();
+        let transform = Transform.identity;
         //if no arguments were provided just use the identity matrix
         if(!position && !rotation && !scale) return transform; 
 
@@ -34,14 +29,14 @@ export class Transform extends float4x4
 
     get translation() : float3
     {
-        return new float3(this.value[12], this.value[13], this.value[14]);
+        return new float3(this[12], this[13], this[14]);
     }
 
     set translation(translation : float3)
     {
-        this.value[12] = translation.x;
-        this.value[13] = translation.y;
-        this.value[14] = translation.z;
+        this[12] = translation.x;
+        this[13] = translation.y;
+        this[14] = translation.z;
     }
 
     get rotation() : Quaternion
@@ -57,9 +52,9 @@ export class Transform extends float4x4
 
     get scale() : float3
     {
-        var sx = new float3(this.value[ 0 ], this.value[ 1 ], this.value[ 2 ]).magnitude();
-		const sy = new float3(this.value[ 4 ], this.value[ 5 ], this.value[ 6 ]).magnitude();
-		const sz = new float3(this.value[ 8 ], this.value[ 9 ], this.value[ 10 ]).magnitude();
+        var sx = new float3(this[ 0 ], this[ 1 ], this[ 2 ]).magnitude();
+		const sy = new float3(this[ 4 ], this[ 5 ], this[ 6 ]).magnitude();
+		const sz = new float3(this[ 8 ], this[ 9 ], this[ 10 ]).magnitude();
 
         // if determinant is negative, we need to invert one scale
 		const det = this.determinant();
@@ -84,34 +79,34 @@ export class Transform extends float4x4
 
 		const sx = scale.x, sy = scale.y, sz = scale.z;
 
-		this.value[ 0 ] = ( 1 - ( yy + zz ) ) * sx;
-		this.value[ 1 ] = ( xy + wz ) * sx;
-		this.value[ 2 ] = ( xz - wy ) * sx;
-		this.value[ 3 ] = 0;
+		this[ 0 ] = ( 1 - ( yy + zz ) ) * sx;
+		this[ 1 ] = ( xy + wz ) * sx;
+		this[ 2 ] = ( xz - wy ) * sx;
+		this[ 3 ] = 0;
 
-		this.value[ 4 ] = ( xy - wz ) * sy;
-		this.value[ 5 ] = ( 1 - ( xx + zz ) ) * sy;
-		this.value[ 6 ] = ( yz + wx ) * sy;
-		this.value[ 7 ] = 0;
+		this[ 4 ] = ( xy - wz ) * sy;
+		this[ 5 ] = ( 1 - ( xx + zz ) ) * sy;
+		this[ 6 ] = ( yz + wx ) * sy;
+		this[ 7 ] = 0;
 
-		this.value[ 8 ] = ( xz + wy ) * sz;
-		this.value[ 9 ] = ( yz - wx ) * sz;
-		this.value[ 10 ] = ( 1 - ( xx + yy ) ) * sz;
-		this.value[ 11 ] = 0;
+		this[ 8 ] = ( xz + wy ) * sz;
+		this[ 9 ] = ( yz - wx ) * sz;
+		this[ 10 ] = ( 1 - ( xx + yy ) ) * sz;
+		this[ 11 ] = 0;
 
-        this.value[ 12 ] = position.x;
-		this.value[ 13 ] = position.y;
-		this.value[ 14 ] = position.z;
-		this.value[ 15 ] = 1;
+        this[ 12 ] = position.x;
+		this[ 13 ] = position.y;
+		this[ 14 ] = position.z;
+		this[ 15 ] = 1;
 
     }
 
     determinant() : number
     {
-		const n11 = this.value[ 0 ], n12 = this.value[ 4 ], n13 = this.value[ 8 ], n14 = this.value[ 12 ];
-		const n21 = this.value[ 1 ], n22 = this.value[ 5 ], n23 = this.value[ 9 ], n24 = this.value[ 13 ];
-		const n31 = this.value[ 2 ], n32 = this.value[ 6 ], n33 = this.value[ 10 ], n34 = this.value[ 14 ];
-		const n41 = this.value[ 3 ], n42 = this.value[ 7 ], n43 = this.value[ 11 ], n44 = this.value[ 15 ];
+		const n11 = this[ 0 ], n12 = this[ 4 ], n13 = this[ 8 ], n14 = this[ 12 ];
+		const n21 = this[ 1 ], n22 = this[ 5 ], n23 = this[ 9 ], n24 = this[ 13 ];
+		const n31 = this[ 2 ], n32 = this[ 6 ], n33 = this[ 10 ], n34 = this[ 14 ];
+		const n41 = this[ 3 ], n42 = this[ 7 ], n43 = this[ 11 ], n44 = this[ 15 ];
 
 		//TODO: make this more efficient
 		//( based on http://www.euclideanspace.com/maths/algebra/matrix/functions/inverse/fourD/index.htm )
@@ -162,35 +157,35 @@ export class Transform extends float4x4
 	multiply(a : Transform, b : Transform) : Transform
 	{
 
-		const a11 = a.value[ 0 ], a12 = a.value[ 4 ], a13 = a.value[ 8 ], a14 = a.value[ 12 ];
-		const a21 = a.value[ 1 ], a22 = a.value[ 5 ], a23 = a.value[ 9 ], a24 = a.value[ 13 ];
-		const a31 = a.value[ 2 ], a32 = a.value[ 6 ], a33 = a.value[ 10 ], a34 = a.value[ 14 ];
-		const a41 = a.value[ 3 ], a42 = a.value[ 7 ], a43 = a.value[ 11 ], a44 = a.value[ 15 ];
+		const a11 = a[ 0 ], a12 = a[ 4 ], a13 = a[ 8 ], a14 = a[ 12 ];
+		const a21 = a[ 1 ], a22 = a[ 5 ], a23 = a[ 9 ], a24 = a[ 13 ];
+		const a31 = a[ 2 ], a32 = a[ 6 ], a33 = a[ 10 ], a34 = a[ 14 ];
+		const a41 = a[ 3 ], a42 = a[ 7 ], a43 = a[ 11 ], a44 = a[ 15 ];
 
-		const b11 = b.value[ 0 ], b12 = b.value[ 4 ], b13 = b.value[ 8 ], b14 = b.value[ 12 ];
-		const b21 = b.value[ 1 ], b22 = b.value[ 5 ], b23 = b.value[ 9 ], b24 = b.value[ 13 ];
-		const b31 = b.value[ 2 ], b32 = b.value[ 6 ], b33 = b.value[ 10 ], b34 = b.value[ 14 ];
-		const b41 = b.value[ 3 ], b42 = b.value[ 7 ], b43 = b.value[ 11 ], b44 = b.value[ 15 ];
+		const b11 = b[ 0 ], b12 = b[ 4 ], b13 = b[ 8 ], b14 = b[ 12 ];
+		const b21 = b[ 1 ], b22 = b[ 5 ], b23 = b[ 9 ], b24 = b[ 13 ];
+		const b31 = b[ 2 ], b32 = b[ 6 ], b33 = b[ 10 ], b34 = b[ 14 ];
+		const b41 = b[ 3 ], b42 = b[ 7 ], b43 = b[ 11 ], b44 = b[ 15 ];
 
-		this.value[ 0 ] = a11 * b11 + a12 * b21 + a13 * b31 + a14 * b41;
-		this.value[ 4 ] = a11 * b12 + a12 * b22 + a13 * b32 + a14 * b42;
-		this.value[ 8 ] = a11 * b13 + a12 * b23 + a13 * b33 + a14 * b43;
-		this.value[ 12 ] = a11 * b14 + a12 * b24 + a13 * b34 + a14 * b44;
+		this[ 0 ] = a11 * b11 + a12 * b21 + a13 * b31 + a14 * b41;
+		this[ 4 ] = a11 * b12 + a12 * b22 + a13 * b32 + a14 * b42;
+		this[ 8 ] = a11 * b13 + a12 * b23 + a13 * b33 + a14 * b43;
+		this[ 12 ] = a11 * b14 + a12 * b24 + a13 * b34 + a14 * b44;
 
-		this.value[ 1 ] = a21 * b11 + a22 * b21 + a23 * b31 + a24 * b41;
-		this.value[ 5 ] = a21 * b12 + a22 * b22 + a23 * b32 + a24 * b42;
-		this.value[ 9 ] = a21 * b13 + a22 * b23 + a23 * b33 + a24 * b43;
-		this.value[ 13 ] = a21 * b14 + a22 * b24 + a23 * b34 + a24 * b44;
+		this[ 1 ] = a21 * b11 + a22 * b21 + a23 * b31 + a24 * b41;
+		this[ 5 ] = a21 * b12 + a22 * b22 + a23 * b32 + a24 * b42;
+		this[ 9 ] = a21 * b13 + a22 * b23 + a23 * b33 + a24 * b43;
+		this[ 13 ] = a21 * b14 + a22 * b24 + a23 * b34 + a24 * b44;
 
-		this.value[ 2 ] = a31 * b11 + a32 * b21 + a33 * b31 + a34 * b41;
-		this.value[ 6 ] = a31 * b12 + a32 * b22 + a33 * b32 + a34 * b42;
-		this.value[ 10 ] = a31 * b13 + a32 * b23 + a33 * b33 + a34 * b43;
-		this.value[ 14 ] = a31 * b14 + a32 * b24 + a33 * b34 + a34 * b44;
+		this[ 2 ] = a31 * b11 + a32 * b21 + a33 * b31 + a34 * b41;
+		this[ 6 ] = a31 * b12 + a32 * b22 + a33 * b32 + a34 * b42;
+		this[ 10 ] = a31 * b13 + a32 * b23 + a33 * b33 + a34 * b43;
+		this[ 14 ] = a31 * b14 + a32 * b24 + a33 * b34 + a34 * b44;
 
-		this.value[ 3 ] = a41 * b11 + a42 * b21 + a43 * b31 + a44 * b41;
-		this.value[ 7 ] = a41 * b12 + a42 * b22 + a43 * b32 + a44 * b42;
-		this.value[ 11 ] = a41 * b13 + a42 * b23 + a43 * b33 + a44 * b43;
-		this.value[ 15 ] = a41 * b14 + a42 * b24 + a43 * b34 + a44 * b44;
+		this[ 3 ] = a41 * b11 + a42 * b21 + a43 * b31 + a44 * b41;
+		this[ 7 ] = a41 * b12 + a42 * b22 + a43 * b32 + a44 * b42;
+		this[ 11 ] = a41 * b13 + a42 * b23 + a43 * b33 + a44 * b43;
+		this[ 15 ] = a41 * b14 + a42 * b24 + a43 * b34 + a44 * b44;
 
 		return this;
 
@@ -198,15 +193,38 @@ export class Transform extends float4x4
 	
 	static fromMatrix4( m : Matrix4 ) : Transform
 	{
-		return new Transform( m.elements as [number, number, number, number,
-			number, number, number, number,
-			number, number, number, number,
-			number, number, number, number]);
+		return new Transform( ...m.elements);
+	}
+
+	static fromFloat32Array( m : Float32Array ) : Transform
+	{
+		return new Transform( ...m);
+	}
+
+
+	copyFloat32Array( m : Float32Array ) : void
+	{
+		this[0] = m[0];
+		this[1] = m[1];
+		this[2] = m[2];
+		this[3] = m[3];
+		this[4] = m[4];
+		this[5] = m[5];
+		this[6] = m[6];
+		this[7] = m[7];
+		this[8] = m[8];
+		this[9] = m[9];
+		this[10] = m[10];
+		this[11] = m[11];
+		this[12] = m[12];
+		this[13] = m[13];
+		this[14] = m[14];
+		this[15] = m[15];
 	}
 
 	deep_copy() : Transform
 	{
-		return new Transform([...this.value]);
+		return new Transform( ...this);
 	}
 
 }

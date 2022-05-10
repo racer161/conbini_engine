@@ -1,8 +1,7 @@
 import * as THREE from "three";
-import { ACESFilmicToneMapping, Mesh, PMREMGenerator, sRGBEncoding } from "three";
+import { ACESFilmicToneMapping, Mesh, PMREMGenerator, ReinhardToneMapping, sRGBEncoding } from "three";
 import { VRButton } from "three/examples/jsm/webxr/VRButton";
 import { keys } from "ts-transformer-keys";
-import { EditorControls } from "../../example/EditorControls";
 import { System } from "../core/System"
 import { TransformComponent } from "./Transformation";
 
@@ -21,7 +20,9 @@ export class Render<T extends RenderEntity> extends System<T>
     renderer: THREE.WebGLRenderer;
     three_scene: THREE.Scene;
     camera: THREE.PerspectiveCamera;
-    controls: EditorControls;
+    xr_camera: THREE.PerspectiveCamera;
+
+    //controls: EditorControls;
     clock: THREE.Clock;
 
     archetype: string[] = keys<RenderEntity>();
@@ -35,8 +36,8 @@ export class Render<T extends RenderEntity> extends System<T>
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.outputEncoding = sRGBEncoding;
         renderer.physicallyCorrectLights = true;
-        renderer.toneMapping = ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 3;
+        renderer.toneMapping = ReinhardToneMapping;
+        renderer.toneMappingExposure = 1;
 
         this.renderer = renderer;
 
@@ -49,20 +50,10 @@ export class Render<T extends RenderEntity> extends System<T>
         }, false );
         document.body.appendChild( VRButton.createButton( this.renderer ) );
 
-        const pmremGenerator = new PMREMGenerator(renderer);
-        pmremGenerator.compileEquirectangularShader();
 
         this.renderer.xr.enabled = true;
 
-        this.clock = new THREE.Clock();
-
-        this.controls = new EditorControls( this.camera, this.renderer.domElement );
-
-        this.controls.movementSpeed = 1;
-        this.controls.lookSpeed = 0.125;
-        this.controls.lookVertical = true;
-
-        const light = new THREE.AmbientLight(0x404040); // soft white light
+        const light = new THREE.AmbientLight(0xA3A3A3); // soft white light
         this.three_scene.add(light);
 
         const directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
@@ -70,14 +61,15 @@ export class Render<T extends RenderEntity> extends System<T>
         this.three_scene.add( directionalLight );
 
         this.camera.position.set(0, 2, 5);
+        this.renderer.setClearColor(0x404040,1);
 
         this.renderer.setSize( window.innerWidth, window.innerHeight );
         document.body.appendChild( this.renderer.domElement );
     }
 
-    async init_entity(e: RenderEntity, pass: number): Promise<void> {
+    async init_entity(e: RenderEntity): Promise<void> {
         e.mesh.matrixAutoUpdate = false;
-        e.mesh.matrix.fromArray(e.transform.value);
+        e.mesh.matrix.fromArray(e.transform);
 
         this.three_scene.add(e.mesh);
         this.three_scene.updateMatrixWorld(true);
@@ -91,15 +83,12 @@ export class Render<T extends RenderEntity> extends System<T>
     }
 
     async beforeUpdate(): Promise<void> {
-        //eventually move this to its own system
-        this.controls.update( this.clock.getDelta() );
-
         this.renderer.render( this.three_scene, this.camera );
-        this.three_scene.updateMatrixWorld(true);
+        //this.three_scene.updateMatrixWorld(true);
     }
 
     async update(e: T & {name : string }): Promise<void> {
-        e.mesh.matrix.fromArray(e.transform.value);
+        e.mesh.matrix.fromArray(e.transform);
     }
 
     

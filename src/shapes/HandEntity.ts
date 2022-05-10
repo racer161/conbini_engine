@@ -6,23 +6,11 @@ import { Entity } from '../core/Entity';
 import { float3 } from '../primitives';
 import { Quaternion } from '../primitives/Quaternion';
 import { Transform } from '../primitives/Transform';
-import { ColliderComponent, getCollisionMask, JointComponent, PhysicsEntity } from '../impl/Physics';
+import { ColliderComponent, getCollisionMask, JointComponent, RigidbodyEntity } from '../impl/Physics';
 import { RenderEntity } from '../impl/Renderer';
+import { Handedness, TrackedPointComponent } from '../impl/Input/XRInput';
 
-export interface HandComponent{
-    joint_name : string,
-    joint_space : XRJointSpace,
-    hand_type : HandType
-}
-
-export enum HandType
-{
-    Left,
-    Right,
-    Middle
-}
-
-function hand_joint_entity(joint_name : string, hand_type: HandType) : Entity[]
+function hand_joint_entity(point_name : string, handedness: Handedness) : Entity[]
 {
     const geometry = new SphereGeometry(0.01,8,8 );
     const material = new MeshBasicMaterial( {color: 0xffffff , side: DoubleSide} );
@@ -46,10 +34,10 @@ function hand_joint_entity(joint_name : string, hand_type: HandType) : Entity[]
     colliderDesc.setFriction(0.5);
 
     
-    const physics_sphere : Entity & PhysicsEntity & RenderEntity & ColliderComponent  = 
+    const physics_sphere : Entity & RigidbodyEntity & RenderEntity & ColliderComponent  = 
     { 
         id: undefined,
-        name: joint_name + "-" + hand_type + "-sphere",
+        name: point_name + "-" + handedness + "-sphere",
         transform: Transform.fromPositionRotationScale(translation, rotation, scale),
         mesh: new Mesh( geometry, material ),
         rigidBodyDesc: rigidBodyDesc,
@@ -65,15 +53,16 @@ function hand_joint_entity(joint_name : string, hand_type: HandType) : Entity[]
     joint_data.limitsEnabled = true;
     joint_data.limits = [-0.01, 0.01];
 
-    const hand_tracked_point : Entity & HandComponent & PhysicsEntity & JointComponent = {
+    const hand_tracked_point : Entity & TrackedPointComponent & RigidbodyEntity & JointComponent = {
         id: undefined,
-        name: joint_name + "-" + hand_type + "-tracker",
-        hand_type: hand_type,
+        isHand: true,
+        name: point_name + "-" + handedness + "-tracker",
+        handedness: handedness,
         joint_space: undefined,
-        joint_name: joint_name,
+        point_name: point_name,
         joint_data: joint_data,
         joint: undefined,
-        transform: new Transform(),
+        transform: Transform.identity,
         rigidbody: undefined,
         rigidBodyDesc: hand_tracked_rigidBodyDesc,
         joined_entity : physics_sphere,
@@ -84,7 +73,7 @@ function hand_joint_entity(joint_name : string, hand_type: HandType) : Entity[]
 }
 
 
-function hand_entity(hand_type : HandType) : Entity[]
+function hand_entity(hand_type : Handedness) : Entity[]
 { 
     return [
         ...hand_joint_entity("wrist", hand_type),
@@ -120,5 +109,5 @@ function hand_entity(hand_type : HandType) : Entity[]
     ] as Entity[];
 }
 
-export const LeftHandEntity = hand_entity(HandType.Left);
-export const RightHandEntity = hand_entity(HandType.Right);
+export const LeftHandEntity = hand_entity(Handedness.Left);
+export const RightHandEntity = hand_entity(Handedness.Right);

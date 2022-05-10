@@ -1,37 +1,31 @@
 
-export class float2
+export class float2 extends Array<number>
 {
-    value: Float32Array | [number, number]
 
-    constructor(array: Float32Array | [number, number])
-    {
-        this.value = array;
-    }
-
-    public static zero : float2 = new float2([0,0]);
-    public static one : float2 = new float2([1,1]);
+    public static zero : float2 = new float2(0,0);
+    public static one : float2 = new float2(1,1);
 
     distance(b : [number, number]) : number
     {
         const a = this;
-        let dx = this.value[0] - b[0];
-        let dy = this.value[1] - b[1];
+        let dx = this[0] - b[0];
+        let dy = this[1] - b[1];
         return Math.sqrt(dx * dx + dy * dy);
     }
 
     magnitude() : number
     {
-        return Math.sqrt(this.value[0] * this.value[0] + this.value[1] * this.value[1]);
+        return Math.sqrt(this[0] * this[0] + this[1] * this[1]);
     }
 
     normalize() : [number, number]
     {
         let len = this.magnitude();
-        return [this.value[0] / len, this.value[1] / len];
+        return [this[0] / len, this[1] / len];
     }
 
     dot(b : [number, number]) : number
     {
-        return this.value[0] * b[0] + this.value[1] * b[1];
+        return this[0] * b[0] + this[1] * b[1];
     }
 }

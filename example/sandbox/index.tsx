@@ -12,9 +12,9 @@ import { cube } from "../../src/shapes/cube";
 import { ConbiniUIDocument, drawJSXToCanvas } from "../../src/ui/ConbiniUIDocument";
 import React from "react";
 import { System } from "../../src/core/System";
-import { HandInput } from "../../src/impl/Input/HandInput";
+import { XRInput } from "../../src/impl/Input/XRInput";
 import { Render } from "../../src/impl/Renderer";
-import { Physics, PhysicsEntity } from "../../src/impl/Physics";
+import { RigidbodySystem, RigidbodyEntity } from "../../src/impl/Physics";
 import { Collision } from "../../src/impl/Collision";
 import { UI, UIComponent, UIEntity } from "../../src/impl/UI";
 import { ui } from "../../src/shapes/ui";
@@ -72,8 +72,8 @@ const getSystemArray = (world : World) : System<any>[] =>
 [
   new Transformation(world),
   new Render(world),
-  new Physics(world),
-  new HandInput(world),
+  new RigidbodySystem(world),
+  new XRInput(world),
   new UI(world)
 ];
 

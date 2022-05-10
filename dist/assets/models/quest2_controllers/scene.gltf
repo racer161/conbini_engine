@@ -556,8 +556,8 @@
                     "index": 0,
                     "texCoord": 0
                 },
-                "roughnessFactor": 1.0,
-                "metallicFactor": 1.0
+                "roughnessFactor": 0.7,
+                "metallicFactor": 0.0
             }
         }
     ],
@@ -602,7 +602,7 @@
                     "material": 0,
                     "mode": 4,
                     "attributes": {
-                        "COLOR_0": 12,
+                         "COLOR_0": 12,
                         "JOINTS_0": 14,
                         "NORMAL": 10,
                         "POSITION": 9,

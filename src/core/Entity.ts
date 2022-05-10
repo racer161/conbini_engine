@@ -3,7 +3,7 @@ import { Document, Material, Primitive, Texture, WebIO } from "@gltf-transform/c
 import { transform } from "lodash";
 import * as THREE from "three";
 import { BufferAttribute, BufferGeometry, Mesh, MeshStandardMaterial, Scene } from "three";
-import { ColliderComponent, PhysicsEntity } from "../impl/Physics";
+import { ColliderComponent, RigidbodyEntity } from "../impl/Physics";
 import { RenderEntity } from "../impl/Renderer";
 import { Transform } from "../primitives/Transform";
 
@@ -17,11 +17,6 @@ import { LocalTransformComponent, ParentComponent, ParentEntity, TransformCompon
 export interface Entity{
     id: string; //TODO: in order for networked physics to work these ids need to be deterministic so they can be matched to their appropriate rigidbody uuid
     name?: string;
-}
-
-export interface Static
-{
-    static?: boolean;
 }
 
 const loader = new GLTFLoader();
@@ -77,6 +72,7 @@ export namespace Entity
         if(three_object.material && three_object.geometry)
         {
             (fin_entity as unknown as RenderEntity).mesh = new Mesh(three_object.geometry, three_object.material);
+            
             //colliderDesc = ColliderDesc.convexHull(three_object.geometry.attributes.position.array as Float32Array);
         }
 

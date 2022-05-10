@@ -1,18 +1,8 @@
-import { float3 } from "../primitives";
-import { ColliderDesc, RigidBody, TempContactManifold } from '@dimforge/rapier3d';
-import { values } from "lodash";
-import { Entity } from "./Entity";
 import { World } from "./World";
-import { XRFrame, XRReferenceSpace } from "three";
-import { CollisionState } from "../impl/Collision";
-import { Physics, PhysicsEntity } from "../impl/Physics";
+import { XRFrame } from "three";
 
-//TODO: eventually implement component arrays at the top level of world
-//It should be a auto-detect system based on the primitive data types
-//that gathers all the entitiy values and exhanges their data for a reference in the array
-//everything else should be left alone
-//why the top level?
-//So the async scheduler can schedule the ownership of the arrays accross parallel system threads
+//TODO: break this out into SyncPointSystem and ConcurrentSystem
+//Concurrent system should have no beforeUpdate or After update which are blocking sync points
 export abstract class System<T> 
 {
     world: World;
@@ -21,7 +11,7 @@ export abstract class System<T>
 
     init_entity_passes = 1;
 
-    archetype: string[];
+    abstract archetype: string[];
 
     entities : Set<T> = new Set<T>();
 
@@ -29,38 +19,59 @@ export abstract class System<T>
     
     init_system?(): Promise<void>;
 
-    init_entity?(e: T, pass : number): Promise<void>;
+    async insert_entity(e: T): Promise<void>
+    {
+        this.entities.add(e);
+        if(this.init_entity) await this.init_entity(e);
+    }
 
-    beforeUpdate?(time: number, frame?: XRFrame): Promise<void>;
+    init_entity?(e: T): Promise<void>;
 
-    afterUpdate?(time: number, frame?: XRFrame): Promise<void>;
+    is_of_archetype(e: any): boolean { return this.archetype && this.archetype.every(a => e.hasOwnProperty(a)); }
+
+    beforeUpdate?(delta_time: number, frame?: XRFrame): Promise<void>;
+
+    afterUpdate?(delta_time: number, frame?: XRFrame): Promise<void>;
 
     //called for each entity in the system each frame
-    abstract update(e: T, time: number, frame?: XRFrame) : Promise<void>;
+    update?(e: T, delta_time: number, frame?: XRFrame) : Promise<void>;
 
-    async run_update(time: number, frame?: XRFrame ) : Promise<void>
+    async run_update(delta_time: number, frame?: XRFrame ) : Promise<void>
     {
         //allow the system to do preprocessing
-        if(this.beforeUpdate) await this.beforeUpdate(time, frame);
+        if(this.beforeUpdate) await this.beforeUpdate(delta_time, frame);
 
         //for each entity process the update 
         //this has to be handled at the top world level to enable parallism?
         
         //DESIGN: I think this can be scheduled all in one chunk like this on a separate thread
         //the world just needs to check if all write-to resources are not being written to by other systems
-        await Promise.all(
+        if(this.update) await Promise.all(
             [...this.entities].map(async e => {
-                return this.update(e, time, frame);
+                return this.update(e, delta_time, frame);
             }
         ));
 
-        if(this.afterUpdate) await this.afterUpdate(time, frame);
+        if(this.afterUpdate) await this.afterUpdate(delta_time, frame);
     }
 
-    //onCollision?(e: T, other: PhysicsEntity, state : CollisionState, manifold: TempContactManifold, flipped : boolean ): void;
+    //onCollision?(e: T, other: RigidbodyEntity, state : CollisionState, manifold: TempContactManifold, flipped : boolean ): void;
 
     constructor(world: World){
         this.world = world;
+    }
+}
+
+export abstract class SingletonSystem<T> extends System<T>
+{
+    entity : T;
+    entities : Set<T> = undefined;
+    archetype: string[] = undefined;
+
+    async run_update(delta_time: number, frame?: XRFrame): Promise<void> {
+        if(this.beforeUpdate) await this.beforeUpdate(delta_time, frame);
+        if(this.update) await this.update(this.entity, delta_time, frame);
+        if(this.afterUpdate) await this.afterUpdate(delta_time, frame);
     }
 }
 

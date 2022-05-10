@@ -2,7 +2,7 @@ import { ColliderDesc, RigidBodyDesc, RigidBodyType } from "@dimforge/rapier3d";
 import { Texture } from "@gltf-transform/core";
 import { BoxGeometry, Color, DoubleSide, FrontSide, Mesh, MeshBasicMaterial, MeshPhysicalMaterial, MeshStandardMaterial, PlaneGeometry, Side, SphereGeometry } from "three";
 import { Entity } from "../core/Entity";
-import { ColliderComponent, PhysicsEntity } from "../impl/Physics";
+import { ColliderComponent, RigidbodyEntity } from "../impl/Physics";
 import { RenderEntity } from "../impl/Renderer";
 import { UIComponent } from "../impl/UI";
 import { float3 } from "../primitives";
@@ -36,11 +36,11 @@ export function ui(transform: Transform, ui_document : ConbiniUIDocument) : Arra
 
     const background_entity : Entity & RenderEntity = ui_background(width, height, transform);
 
-    const foreground : Entity & RenderEntity & PhysicsEntity & ColliderComponent & UIComponent = {
+    const foreground : Entity & RenderEntity & RigidbodyEntity & ColliderComponent & UIComponent = {
         id: "",
         rigidBodyDesc: rigidbody_desc,
         rigidbody : undefined,
-        transform : transform ? transform : new Transform(),
+        transform : transform ? transform : Transform.identity,
         collider : ColliderDesc.cuboid(width/2, height/2, .05),
         mesh : new Mesh(geometry, material),
         ui_document : ui_document

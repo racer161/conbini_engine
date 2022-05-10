@@ -5,8 +5,7 @@ import { Entity } from "../core/Entity";
 import { System } from "../core/System";
 import { TransformComponent } from "../impl/Transformation";
 import { ConbiniUIDocument } from "../ui/ConbiniUIDocument";
-import { HandEntity, HandInput } from "./Input/HandInput";
-import { Physics, PhysicsEntity, RigidBodyComponent } from "./Physics";
+import { RigidbodySystem, RigidbodyEntity, RigidbodyComponent } from "./Physics";
 import { MeshComponent } from "./Renderer";
 
 
@@ -15,7 +14,7 @@ export interface UIComponent
     ui_document : ConbiniUIDocument
 }
 
-export interface UIEntity extends TransformComponent, RigidBodyComponent, MeshComponent, UIComponent{}
+export interface UIEntity extends TransformComponent, RigidbodyComponent, MeshComponent, UIComponent{}
 
 export class UI<T extends UIEntity> extends System<T> 
 {
@@ -27,16 +26,16 @@ export class UI<T extends UIEntity> extends System<T>
 
     physics_world: World;
 
-    input_entities: Set<HandEntity>;
+    input_entities: Set<RigidbodyEntity>;
 
     async init_system(): Promise<void>
     {
-        const physics = this.world.system_array.find(s => s instanceof Physics) as Physics<PhysicsEntity>;
+        const physics = this.world.system_array.find(s => s instanceof RigidbodySystem) as RigidbodySystem<RigidbodyEntity>;
         this.physics_world = physics.physics.world;
     }
 
     
-    async beforeUpdate(time: number, frame?: XRFrame): Promise<void>{
+    async beforeUpdate(delta_time: number, frame?: XRFrame): Promise<void>{
         if(this.input_entities === undefined)
         {
             this.input_entities = new Set(this.world.getEntitiesByName([
@@ -45,13 +44,13 @@ export class UI<T extends UIEntity> extends System<T>
                 "middle-finger-tip-0-sphere", "middle-finger-tip-1-sphere",//MIDDLE
                 "ring-finger-tip-0-sphere", "ring-finger-tip-1-sphere", //RING
                 "pinky-finger-tip-0-sphere", "pinky-finger-tip-1-sphere"//PINKY
-            ])) as unknown as Set<HandEntity>;
+            ])) as unknown as Set<RigidbodyEntity>;
     
             console.log(this.input_entities);
         }
     }
     
-    async update(e: T, time: number, frame?: XRFrame): Promise<void> {
+    async update(e: T, delta_time: number, frame?: XRFrame): Promise<void> {
         //throw new Error("Method not implemented.");
         //TODO: implement collision detection or raycasting
         //simulate click when hand touches ui element

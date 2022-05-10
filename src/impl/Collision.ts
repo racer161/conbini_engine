@@ -4,15 +4,15 @@ import { keys } from "ts-transformer-keys";
 import { Entity } from "../core/Entity";
 import { System } from "../core/System";
 import { TransformComponent } from "../impl/Transformation";
-import { ColliderComponent, Physics, PhysicsEntity, RigidBodyComponent } from "./Physics";
+import { ColliderComponent, RigidbodySystem, RigidbodyEntity, RigidbodyComponent } from "./Physics";
 
 export interface CollisionSubscriberComponent
 {
     call_on_collision : boolean,
-    listen_to_collisions_with : PhysicsEntity[]
+    listen_to_collisions_with : RigidbodyEntity[]
 }
 
-export interface CollisionEntity extends TransformComponent, RigidBodyComponent, ColliderComponent, CollisionSubscriberComponent {}
+export interface CollisionEntity extends TransformComponent, RigidbodyComponent, ColliderComponent, CollisionSubscriberComponent {}
 
 
 //THIS SYSTEM MUST ALWAYS BE INITIALIZED AFTER THE PHYSICS SYSTEM
@@ -29,7 +29,7 @@ export class Collision<T extends CollisionEntity> extends System<T>{
     on_collision_listeners: System<any>[] = [];
 
     async init_system(): Promise<void> {
-        const physics = this.world.system_array.find(s => s instanceof Physics) as Physics<PhysicsEntity>;
+        const physics = this.world.system_array.find(s => s instanceof RigidbodySystem) as RigidbodySystem<RigidbodyEntity>;
         this.physics_world = physics.physics.world;
         //pair down the number of systems to call
         for(let system of this.world.system_array)
@@ -39,7 +39,7 @@ export class Collision<T extends CollisionEntity> extends System<T>{
         }
     }
     
-    async update(e: CollisionEntity, time: number, frame?: XRFrame): Promise<void> {
+    async update(e: CollisionEntity, delta_time: number, frame?: XRFrame): Promise<void> {
         if(!e.call_on_collision) return;
 
         //TODO: this only calls for the 0th collider
@@ -64,7 +64,7 @@ export class Collision<T extends CollisionEntity> extends System<T>{
     }
 
     //DEBUG calls itself :)
-    onCollision(e: T, other: PhysicsEntity, state: CollisionState, manifold: TempContactManifold, flipped: boolean): void {
+    onCollision(e: T, other: RigidbodyEntity, state: CollisionState, manifold: TempContactManifold, flipped: boolean): void {
         // Contact information can be read from `manifold`. 
         console.log(`Collision detected between ${e} and ${other}`);
     }

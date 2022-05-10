@@ -1,5 +1,6 @@
 import { Transform } from "./Transform";
 import { Vector3 } from "three";
+import { Quaternion } from "./Quaternion";
 
 export class float3 extends Array<number>{
 
@@ -46,18 +47,56 @@ export class float3 extends Array<number>{
         return new float3(this[0] + b.x, this[1] + b.y, this[2] + b.z);
     }
 
-    times(b : float3 | Vector3) : float3
+    multiply(b : float3 | Vector3) : float3
     {
         return new float3(this[0] * b.x, this[1] * b.y, this[2] * b.z);
     }
 
+    minus(b : float3 | Vector3) : float3
+    {
+        return new float3(this[0] - b.x, this[1] - b.y, this[2] - b.z);
+    }
+
+    add(b : float3 | Vector3) : float3
+    {
+        return new float3(this[0] + b.x, this[1] + b.y, this[2] + b.z);
+    }
+
+    applyQuaternion( q : Quaternion | THREE.Quaternion ) : float3
+    {
+
+		const x = this.x, y = this.y, z = this.z;
+		const qx = q.x, qy = q.y, qz = q.z, qw = q.w;
+
+		// calculate quat * vector
+
+		const ix = qw * x + qy * z - qz * y;
+		const iy = qw * y + qz * x - qx * z;
+		const iz = qw * z + qx * y - qy * x;
+		const iw = - qx * x - qy * y - qz * z;
+
+		// calculate result * inverse quat
+
+		this.x = ix * qw + iw * - qx + iy * - qz - iz * - qy;
+		this.y = iy * qw + iw * - qy + iz * - qx - ix * - qz;
+		this.z = iz * qw + iw * - qz + ix * - qy - iy * - qx;
+
+		return this;
+
+	}
+
+    fromVector3(v : Vector3) : float3
+    {
+        return new float3(v.x, v.y, v.z);
+    }
+
     static multiplyTransformAndPoint(transform : Transform, point : float3) : float3
     {
-        // Give a simple variable name to each part of the transform.value, a column and row number
-        let c0r0 = transform.value[ 0], c1r0 = transform.value[ 1], c2r0 = transform.value[ 2], c3r0 = transform.value[ 3];
-        let c0r1 = transform.value[ 4], c1r1 = transform.value[ 5], c2r1 = transform.value[ 6], c3r1 = transform.value[ 7];
-        let c0r2 = transform.value[ 8], c1r2 = transform.value[ 9], c2r2 = transform.value[10], c3r2 = transform.value[11];
-        let c0r3 = transform.value[12], c1r3 = transform.value[13], c2r3 = transform.value[14], c3r3 = transform.value[15];
+        // Give a simple variable name to each part of the transform, a column and row number
+        let c0r0 = transform[ 0], c1r0 = transform[ 1], c2r0 = transform[ 2], c3r0 = transform[ 3];
+        let c0r1 = transform[ 4], c1r1 = transform[ 5], c2r1 = transform[ 6], c3r1 = transform[ 7];
+        let c0r2 = transform[ 8], c1r2 = transform[ 9], c2r2 = transform[10], c3r2 = transform[11];
+        let c0r3 = transform[12], c1r3 = transform[13], c2r3 = transform[14], c3r3 = transform[15];
       
         // Now set some simple names for the point
         let x = point[0];

@@ -23,9 +23,9 @@ export class Quaternion extends float4
 		const invSZ = 1 / scale.z;
 
         const
-			m11 = transform.value[ 0 ]* invSX, m12 = transform.value[ 1 ]* invSX, m13 = transform.value[ 2 ]* invSX, //3
-			m21 = transform.value[ 4 ]* invSY, m22 = transform.value[ 5 ]* invSY, m23 = transform.value[ 6 ]* invSY, //7
-			m31 = transform.value[ 8 ]* invSZ, m32 = transform.value[ 9 ]* invSZ, m33 = transform.value[ 10]* invSZ, //11
+			m11 = transform[ 0 ]* invSX, m12 = transform[ 1 ]* invSX, m13 = transform[ 2 ]* invSX, //3
+			m21 = transform[ 4 ]* invSY, m22 = transform[ 5 ]* invSY, m23 = transform[ 6 ]* invSY, //7
+			m31 = transform[ 8 ]* invSZ, m32 = transform[ 9 ]* invSZ, m33 = transform[ 10]* invSZ, //11
 
 			trace = m11 + m22 + m33;
  
@@ -82,4 +82,20 @@ export class Quaternion extends float4
         );
 				
     }
+	
+	multiply(b : Quaternion ) : Quaternion
+	{
+
+		// from http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/code/index.htm
+
+		this.x = this.x * b.w + this.w * b.x + this.y * b.z - this.z * b.y;
+		this.y = this.y * b.w + this.w * b.y + this.z * b.x - this.x * b.z;
+		this.z = this.z * b.w + this.w * b.z + this.x * b.y - this.y * b.x;
+		this.w = this.w * b.w - this.x * b.x - this.y * b.y - this.z * b.z;
+
+		this.normalize();
+
+		return this;
+
+	} 
 }

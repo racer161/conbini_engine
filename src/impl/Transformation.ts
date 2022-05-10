@@ -39,28 +39,14 @@ export class Transformation<T extends ParentEntity> extends System<T>
     archetype: string[] = keys<ParentEntity>();
 
     run_priority: number = 1000000000;
-    
 
-    async init_system(): Promise<void> 
-    {
-
-    }
-
-    async init_entity(e: T & { local_transform?: Transform }, pass: number): Promise<void> {
-        if(e.local_transform)
-        {
-            this.entities.delete(e);
-        }
-    }
-
-    async beforeUpdate(time: number, frame?: XRFrame): Promise<void> {
+    async init_entity(e: T & { local_transform?: Transform }): Promise<void> {
+        if(e.local_transform) this.entities.delete(e);
     }
   
-    async update(e: ParentEntity, time: number, frame?: XRFrame): Promise<void> 
+    async update(e: ParentEntity, delta_time: number, frame?: XRFrame): Promise<void> 
     {
         this.inOrderTraversal(e);
-        
-        
     }
 
     inOrderTraversal(e: ParentEntity & { local_transform?: Transform}, parent?: TransformComponent & ParentComponent)
@@ -68,7 +54,7 @@ export class Transformation<T extends ParentEntity> extends System<T>
         if(parent && parent.needs_transform_update){
             e.transform.multiply(parent.transform, e.local_transform);
             //console.log(`updated ${(e as unknown as Entity).name} to `,e.transform.translation);
-            //parent.needs_transform_update = false;
+            parent.needs_transform_update = false;
         }
 
         e.children.forEach((child : TransformComponent & LocalTransformComponent & { children ? : Array<TransformComponent & LocalTransformComponent>})=> {

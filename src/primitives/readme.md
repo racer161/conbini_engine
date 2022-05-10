@@ -11,7 +11,7 @@ export class float3{
     value: Float32Array | [number, number, number]
 
     constructor(array: Float32Array | [number, number, number]) {
-        this.value = array;
+        this = array;
     }
 
     ...
