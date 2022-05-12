@@ -8,7 +8,6 @@ import { Render, RenderEntity } from "../Renderer";
 import { RigidbodyEntity } from "../Physics";
 import { float3 } from "../../primitives";
 import { Quaternion } from "../../primitives/Quaternion";
-import { OculusTouchGamepadInput } from "./XRGamepad";
 import { Transform } from "../../primitives/Transform";
 import { RigidBody } from "@dimforge/rapier3d";
 
@@ -44,10 +43,6 @@ export class XRInput<T extends Entity & XRTrackedEntity> extends System<T>{
     leftHand: XRHand | EventTarget;
 
     handTrackingActive: boolean = false;
-
-    gamepad: OculusTouchGamepadInput = new OculusTouchGamepadInput();
-
-    //rightGripSpace: XRGripSpace;
 
     xr_manager: WebXRManager;
 
@@ -101,10 +96,6 @@ export class XRInput<T extends Entity & XRTrackedEntity> extends System<T>{
         this.session.inputSources.forEach(source => {
             if(source.hand) this.setHandPoses(source.hand, source.handedness as Handedness);
             else if(source.gripSpace) this.setGripPoses(source.gripSpace, source.handedness as Handedness);
-            if(source.gamepad){
-                this.gamepad.set_gamepad(source.gamepad, source.handedness as Handedness);
-                console.log("gamepad ready");
-            }
         });
     }
 
