@@ -64,7 +64,6 @@ export class GamepadInputSystem extends SingletonSystem<GamepadInputValue> {
             e.left_trigger = e.left_trigger || gamepad.left_trigger;
             e.right_trigger = e.right_trigger || gamepad.right_trigger;
             e.dpad = e.dpad || gamepad.dpad;
-
         });
     }
 }

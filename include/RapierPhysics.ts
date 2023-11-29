@@ -14,6 +14,7 @@ export default class RapierPhysics
         this.RAPIER = rapier;
         this.gravity = { x: 0.0, y: -9.81, z: 0.0 };
         this.world = new World(this.gravity);
+        //TODO: move physics step outside the core gameloop?
         this.world.timestep = 1.0 / QUEST_2_DEFAULT_WEBXR_FPS;
     }
 

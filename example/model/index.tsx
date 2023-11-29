@@ -11,7 +11,6 @@ import { Transformation } from "../../src/impl/Transformation";
 import { UI } from "../../src/impl/UI";
 import { Quest2Controllers } from "../../src/shapes/ControllerEntity";
 import { cube } from "../../src/shapes/cube";
-import { LeftHandEntity, RightHandEntity } from "../../src/shapes/HandEntity";
 
 async function main()
 {
@@ -22,8 +21,6 @@ async function main()
   var scene_array : Entity[] = [
     default_cube,
     ...controllers,
-    ...LeftHandEntity,
-    ...RightHandEntity
   ];
 
   const scene = new World(getSystemArray);

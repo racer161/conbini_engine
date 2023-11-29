@@ -1,8 +1,6 @@
 import { XRFrame } from "three";
 import { SingletonSystem } from "../../core/System";
 
-//import { Key } from 'ts-key-enum';
-
 export class KeyboardInputSystem extends SingletonSystem<Window> {
     name: string = "KeyboardInput";
 
@@ -19,7 +17,7 @@ export class KeyboardInputSystem extends SingletonSystem<Window> {
         //if the key is up remove it from the set
         else if (event.type === "keyup") this.is_key_down.delete(event.key);
 
-        console.log(this.is_key_down);
+        //console.log(this.is_key_down);
     }
 
     on_key_down(key: string): boolean {
